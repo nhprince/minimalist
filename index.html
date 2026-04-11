@@ -291,15 +291,11 @@
 
 .liquid-glass.lg-glow-sm {
   --lg-glow: 0 14px 44px rgba(79, 70, 229, 0.10);
-}
-
-[data-draggable="true"] {
+}[data-draggable="true"] {
   cursor: grab;
   user-select: none;
   touch-action: none;
-}
-
-[data-draggable="true"].is-dragging {
+}[data-draggable="true"].is-dragging {
   cursor: grabbing;
 }
 
@@ -414,23 +410,19 @@
 
 /* ── FIXED: Nav height compensation — increased for proper gap ── */
 .nav-offset {
-  padding-top: 92px; /* 60px nav + 32px gap */
+  padding-top: 80px;
 }
 
 @media (min-width: 1024px) {
   .nav-offset {
-    padding-top: 96px; /* 60px nav + 36px gap */
+    padding-top: 84px;
   }
-}
-
-[data-staggered-item] {
+}[data-staggered-item] {
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 1s cubic-bezier(0.25, 0.1, 0.25, 1), transform 1s cubic-bezier(0.25, 0.1, 0.25, 1);
   will-change: opacity, transform;
-}
-
-[data-staggered-item].is-visible {
+}[data-staggered-item].is-visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -444,8 +436,8 @@
 #smart-cta.text-dark-mode .cta-divider  { border-color: rgba(100, 116, 139, 0.20); }
 
 .hero-dot {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -469,7 +461,7 @@
 }
 
 @media (max-width: 768px) {
-  .hero-dot { width: 16px; height: 16px; }
+  .hero-dot { width: 12px; height: 12px; }
 }
 </style>
 </head>
@@ -646,15 +638,15 @@
 
 <!-- ═══════ MOUSEPAD CATALOG ═══════ -->
 <section class="py-20 md:py-24 bg-surface" data-component-list="StaggeredFadeIn">
-  <div class="section-container">
+  <div class="max-w-[1440px] mx-auto px-6 xl:px-10">
 
-    <h2 class="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-10 md:mb-12" data-staggered-item>Mousepad Design Catalog</h2>
+    <h2 class="font-headline text-3xl md:text-4xl font-bold text-on-surface mb-10 md:mb-12 px-2 md:px-0" data-staggered-item>Mousepad Design Catalog</h2>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
 
       <!-- ITEM 1: Mai Street Fighter -->
       <div class="group bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(225,29,72,0.18)] hover:border-red-300/80 z-10 hover:z-20" data-staggered-item>
-        <div class="relative w-full aspect-[4/3] rounded-[24px] bg-red-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-red-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
           <img src="product1-desk.jpeg" alt="Mai – Street Fighter Desk" class="absolute inset-0 w-full h-full object-cover object-top z-0"/>
           <img src="product1.jpeg" alt="Mai – Street Fighter" class="absolute inset-0 w-full h-full object-cover object-top z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0"/>
           <span class="absolute top-3 left-3 bg-[#e24b4a] text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none">HOT</span>
@@ -667,28 +659,28 @@
             </button>
           </div>
           <p class="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase opacity-70 mb-5 truncate leading-none">Limited Edition Artist</p>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-3 mb-5">
-            <div class="flex items-center gap-3 mb-3.5 mt-0.5 justify-between">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1.5 w-[36px]">SIZE</span>
-              <div class="flex gap-[6px] justify-end flex-wrap flex-1">
-                <button class="h-[34px] px-3.5 bg-primary/10 border border-primary text-primary rounded-xl font-bold flex flex-col justify-center items-center shadow-sm w-12 hover:-translate-y-[0.5px] active:scale-95 transition-all">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">XL</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[2px] leading-[0.5]">EXT</span>
+          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-5">
+            <div class="flex items-center gap-2 mb-3 mt-0.5 justify-between">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">SIZE</span>
+              <div class="flex gap-[5px] justify-end flex-wrap flex-1">
+                <button class="h-[28px] px-2.5 bg-primary/10 border border-primary text-primary rounded-[8px] font-bold flex flex-col justify-center items-center shadow-sm min-w-[34px] hover:-translate-y-[0.5px] active:scale-95 transition-all">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">XL</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[1.5px] leading-[0.5]">EXT</span>
                 </button>
-                <button class="h-[34px] px-3.5 bg-white border border-slate-200/80 text-slate-500 rounded-xl font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] w-12 hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">L</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[2px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
+                <button class="h-[28px] px-2.5 bg-white border border-slate-200/80 text-slate-500 rounded-[8px] font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] min-w-[34px] hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">L</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[1.5px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
                 </button>
-                <button class="h-[34px] px-3.5 bg-white border border-slate-200/80 text-slate-500 rounded-xl font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] w-12 hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all lg:hidden xl:flex hidden @md:flex group/size2">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">M</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[2px] leading-[0.5] group-hover/size2:border-slate-300 group-hover/size2:opacity-90">COM</span>
+                <button class="h-[28px] px-2.5 bg-white border border-slate-200/80 text-slate-500 rounded-[8px] font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] min-w-[34px] hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">M</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[1.5px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">COM</span>
                 </button>
               </div>
             </div>
-            <div class="flex items-center">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 w-[36px]">DIM</span>
-              <div class="flex items-baseline text-[11.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[10px]">x</span>400<span class="text-slate-500 font-sans text-[10px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
+            <div class="flex items-center mt-1">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">DIM</span>
+              <div class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
+                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">x</span>400<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
               </div>
             </div>
           </div>
@@ -703,11 +695,11 @@
                 Preview
               </button>
             </div>
-            <div class="flex items-center justify-between pt-1 pb-1">
-              <div class="font-headline tracking-[-0.04em] text-on-surface font-extrabold flex items-baseline">
-                <span class="text-[26px] leading-none">৳45</span><span class="text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-px">.00</span>
+            <div class="flex items-center justify-between pt-1 pb-1 gap-1.5 mt-auto">
+              <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[13px] px-5 sm:px-[18px] lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 Add to cart
               </button>
             </div>
@@ -717,7 +709,7 @@
 
       <!-- ITEM 2: Shinobi Girl -->
       <div class="group bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(245,158,11,0.18)] hover:border-amber-300/80 z-10 hover:z-20" data-staggered-item>
-        <div class="relative w-full aspect-[4/3] rounded-[24px] bg-amber-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-amber-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
           <img src="product2-desk.jpeg" alt="Shinobi Girl Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0"/>
           <img src="product2.jpeg" alt="Shinobi Girl" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0"/>
         </div>
@@ -729,24 +721,24 @@
             </button>
           </div>
           <p class="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase opacity-70 mb-5 truncate leading-none">Midnight Edition</p>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-3 mb-5">
-            <div class="flex items-center gap-3 mb-3.5 mt-0.5 justify-between">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1.5 w-[36px]">SIZE</span>
-              <div class="flex gap-[6px] justify-end flex-wrap flex-1">
-                <button class="h-[34px] px-3.5 bg-white border border-slate-200/80 text-slate-500 rounded-xl font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] w-12 hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">XL</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[2px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
+          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-5">
+            <div class="flex items-center gap-2 mb-3 mt-0.5 justify-between">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">SIZE</span>
+              <div class="flex gap-[5px] justify-end flex-wrap flex-1">
+                <button class="h-[28px] px-2.5 bg-white border border-slate-200/80 text-slate-500 rounded-[8px] font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] min-w-[34px] hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">XL</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[1.5px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
                 </button>
-                <button class="h-[34px] px-3.5 bg-primary/10 border border-primary text-primary rounded-xl font-bold flex flex-col justify-center items-center shadow-sm w-12 hover:-translate-y-[0.5px] active:scale-95 transition-all">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">L</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[2px] leading-[0.5]">EXT</span>
+                <button class="h-[28px] px-2.5 bg-primary/10 border border-primary text-primary rounded-[8px] font-bold flex flex-col justify-center items-center shadow-sm min-w-[34px] hover:-translate-y-[0.5px] active:scale-95 transition-all">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">L</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[1.5px] leading-[0.5]">EXT</span>
                 </button>
               </div>
             </div>
-            <div class="flex items-center">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 w-[36px]">DIM</span>
-              <div class="flex items-baseline text-[11.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[10px]">x</span>400<span class="text-slate-500 font-sans text-[10px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
+            <div class="flex items-center mt-1">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">DIM</span>
+              <div class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
+                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">x</span>400<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
               </div>
             </div>
           </div>
@@ -761,11 +753,11 @@
                 Preview
               </button>
             </div>
-            <div class="flex items-center justify-between pt-1 pb-1">
-              <div class="font-headline tracking-[-0.04em] text-on-surface font-extrabold flex items-baseline">
-                <span class="text-[26px] leading-none">৳39</span><span class="text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-px">.00</span>
+            <div class="flex items-center justify-between pt-1 pb-1 gap-1.5 mt-auto">
+              <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳3900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[13px] px-5 sm:px-[18px] lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 Add to cart
               </button>
             </div>
@@ -774,8 +766,8 @@
       </div>
 
       <!-- ITEM 3: Neo Tokyo -->
-      <div class="group bg-gradient-to-br from-sky-50 to-sky-100/50 border border-sky-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(14,165,233,0.18)] hover:border-sky-300/80 z-10 hover:z-20" data-staggered-item>
-        <div class="relative w-full aspect-[4/3] rounded-[24px] bg-sky-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(14,165,233,0.08)] border border-sky-100/50 dark-zone">
+      <div class="group bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(107,114,128,0.18)] hover:border-gray-300/80 z-10 hover:z-20" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-gray-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(107,114,128,0.08)] border border-gray-100/50 dark-zone">
           <img src="product3-desk.jpeg" alt="Neo Tokyo Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0"/>
           <img src="product3.jpeg" alt="Neo Tokyo" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0"/>
         </div>
@@ -787,24 +779,24 @@
             </button>
           </div>
           <p class="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase opacity-70 mb-5 truncate leading-none">Cyber Collection</p>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-3 mb-5">
-            <div class="flex items-center gap-3 mb-3.5 mt-0.5 justify-between">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1.5 w-[36px]">SIZE</span>
-              <div class="flex gap-[6px] justify-end flex-wrap flex-1">
-                <button class="h-[34px] px-3.5 bg-white border border-slate-200/80 text-slate-500 rounded-xl font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] w-12 hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">L</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[2px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
+          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-5">
+            <div class="flex items-center gap-2 mb-3 mt-0.5 justify-between">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">SIZE</span>
+              <div class="flex gap-[5px] justify-end flex-wrap flex-1">
+                <button class="h-[28px] px-2.5 bg-white border border-slate-200/80 text-slate-500 rounded-[8px] font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] min-w-[34px] hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">L</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[1.5px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
                 </button>
-                <button class="h-[34px] px-3.5 bg-primary/10 border border-primary text-primary rounded-xl font-bold flex flex-col justify-center items-center shadow-sm w-12 hover:-translate-y-[0.5px] active:scale-95 transition-all">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">XL</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[2px] leading-[0.5]">COM</span>
+                <button class="h-[28px] px-2.5 bg-primary/10 border border-primary text-primary rounded-[8px] font-bold flex flex-col justify-center items-center shadow-sm min-w-[34px] hover:-translate-y-[0.5px] active:scale-95 transition-all">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">XL</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[1.5px] leading-[0.5]">COM</span>
                 </button>
               </div>
             </div>
-            <div class="flex items-center">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 w-[36px]">DIM</span>
-              <div class="flex items-baseline text-[11.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                700<span class="font-sans font-medium text-slate-400 mx-[3px] text-[10px]">x</span>300<span class="text-slate-500 font-sans text-[10px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
+            <div class="flex items-center mt-1">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">DIM</span>
+              <div class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
+                700<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">x</span>300<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
               </div>
             </div>
           </div>
@@ -819,11 +811,11 @@
                 Preview
               </button>
             </div>
-            <div class="flex items-center justify-between pt-1 pb-1">
-              <div class="font-headline tracking-[-0.04em] text-on-surface font-extrabold flex items-baseline">
-                <span class="text-[26px] leading-none">৳49</span><span class="text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-px">.00</span>
+            <div class="flex items-center justify-between pt-1 pb-1 gap-1.5 mt-auto">
+              <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[13px] px-5 sm:px-[18px] lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 Add to cart
               </button>
             </div>
@@ -833,7 +825,7 @@
 
       <!-- ITEM 4: Royal Ink -->
       <div class="group bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(79,70,229,0.18)] hover:border-indigo-300/80 z-10 hover:z-20" data-staggered-item>
-        <div class="relative w-full aspect-[4/3] rounded-[24px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
           <img src="product4-desk.jpeg" alt="Royal Ink Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0"/>
           <img src="product4.jpeg" alt="Royal Ink" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0"/>
           <span class="absolute top-3 left-3 bg-primary text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none">NEW</span>
@@ -846,24 +838,24 @@
             </button>
           </div>
           <p class="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase opacity-70 mb-5 truncate leading-none">Premium Fluidity Series</p>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-3 mb-5">
-            <div class="flex items-center gap-3 mb-3.5 mt-0.5 justify-between">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1.5 w-[36px]">SIZE</span>
-              <div class="flex gap-[6px] justify-end flex-wrap flex-1">
-                <button class="h-[34px] px-3.5 bg-primary/10 border border-primary text-primary rounded-xl font-bold flex flex-col justify-center items-center shadow-sm w-12 hover:-translate-y-[0.5px] active:scale-95 transition-all">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">XL</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[2px] leading-[0.5]">EXT</span>
+          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-5">
+            <div class="flex items-center gap-2 mb-3 mt-0.5 justify-between">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">SIZE</span>
+              <div class="flex gap-[5px] justify-end flex-wrap flex-1">
+                <button class="h-[28px] px-2.5 bg-primary/10 border border-primary text-primary rounded-[8px] font-bold flex flex-col justify-center items-center shadow-sm min-w-[34px] hover:-translate-y-[0.5px] active:scale-95 transition-all">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">XL</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-80 border-t border-primary/20 pointer-events-none block pt-[1.5px] leading-[0.5]">EXT</span>
                 </button>
-                <button class="h-[34px] px-3.5 bg-white border border-slate-200/80 text-slate-500 rounded-xl font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] w-12 hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
-                  <span class="text-[11.5px] leading-none mb-[2.5px] block pointer-events-none tracking-tight">L</span>
-                  <span class="text-[5.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[2px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
+                <button class="h-[28px] px-2.5 bg-white border border-slate-200/80 text-slate-500 rounded-[8px] font-bold flex flex-col justify-center items-center shadow-[0_1px_2px_rgba(0,0,0,0.015)] min-w-[34px] hover:border-slate-300 hover:text-slate-700 hover:-translate-y-[0.5px] active:scale-95 transition-all group/size">
+                  <span class="text-[9.5px] leading-none mb-[1.5px] block pointer-events-none tracking-tight">L</span>
+                  <span class="text-[4.5px] uppercase font-bold tracking-[0.08em] opacity-60 border-t border-slate-200/80 pointer-events-none block pt-[1.5px] leading-[0.5] group-hover/size:border-slate-300 group-hover/size:opacity-90">EXT</span>
                 </button>
               </div>
             </div>
-            <div class="flex items-center">
-              <span class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 w-[36px]">DIM</span>
-              <div class="flex items-baseline text-[11.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[10px]">x</span>400<span class="text-slate-500 font-sans text-[10px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
+            <div class="flex items-center mt-1">
+              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 mr-1 w-[32px]">DIM</span>
+              <div class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
+                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">x</span>400<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
               </div>
             </div>
           </div>
@@ -878,11 +870,11 @@
                 Preview
               </button>
             </div>
-            <div class="flex items-center justify-between pt-1 pb-1">
-              <div class="font-headline tracking-[-0.04em] text-on-surface font-extrabold flex items-baseline">
-                <span class="text-[26px] leading-none">৳55</span><span class="text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-px">.00</span>
+            <div class="flex items-center justify-between pt-1 pb-1 gap-1.5 mt-auto">
+              <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳5500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[13px] px-5 sm:px-[18px] lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 Add to cart
               </button>
             </div>
@@ -1124,7 +1116,7 @@
           else if (m3) { const p = m3[1].split(',').map(v => parseFloat(v.trim())); baseX = p[12]||0; baseY = p[13]||0; }
           else { baseX = 0; baseY = 0; }
         } else { baseX = 0; baseY = 0; }
-      };
+     };
       const onMove = (e) => { if (!dragging) return; nextX = baseX + (e.clientX - startX); nextY = baseY + (e.clientY - startY); if (!raf) raf = requestAnimationFrame(apply); };
       const onUp = (e) => { if (!dragging) return; dragging = false; el.classList.remove('is-dragging'); try { el.releasePointerCapture(e.pointerId); } catch (_) {} };
       el.addEventListener('pointerdown', onDown);

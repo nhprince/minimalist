@@ -396,15 +396,10 @@
 
 /* ── Mobile Deck & Soft Page Lock System Ruleset  ── */
 @media (max-width: 1023px) {
-  html, body {
-    scroll-snap-type: y proximity;
-  }
-  #catalog-section {
-    scroll-snap-align: center;
-  }
+  /* NOTE: CSS scroll-snap removed — replaced with smooth JS soft-lock below */
   .mobile-deck-wrapper {
     position: relative;
-    height: 475px; 
+    height: 400px; 
     width: 100%;
     max-width: 380px; 
     margin: 0 auto; 
@@ -450,15 +445,12 @@
   .nav-offset {
     padding-top: 84px;
   }
-}
-
-[data-staggered-item] {
+}[data-staggered-item] {
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 1s cubic-bezier(0.25, 0.1, 0.25, 1), transform 1s cubic-bezier(0.25, 0.1, 0.25, 1);
   will-change: opacity, transform;
-}
-[data-staggered-item].is-visible {
+}[data-staggered-item].is-visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -552,7 +544,7 @@
   max-width: 320px;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.25, 1, 0.3, 1);
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -594,6 +586,51 @@
   transform: translateX(0);
 }
 
+/* ══════════════════════════════════════════════════
+   BRAND GLOW SEARCH BAR — Desktop Nav
+   Clean transparent border + neat glow on focus
+   ══════════════════════════════════════════════════ */
+
+.glow-search-wrap {
+  position: relative;
+  border-radius: 99px;
+}
+
+.glow-search-wrap .glow-search-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.glow-search-wrap input {
+  transition: box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.35s ease;
+}
+
+.glow-search-wrap:focus-within input {
+  border-color: transparent !important;
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.9),
+    0 0 16px 5px rgba(168, 85, 247, 0.35),
+    0 0 32px 8px rgba(79, 70, 229, 0.25);
+  outline: none;
+}
+
+/* ══════════════════════════════════════════════════
+   BRAND GLOW SEARCH BAR — Mobile Sidebar
+   Clean transparent border + neat glow on focus
+   ══════════════════════════════════════════════════ */
+
+.mobile-glow-search-wrap {
+  position: relative;
+  border-radius: 99px;
+}
+
+.mobile-glow-search-wrap .mobile-glow-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+}
+
 #mobile-menu-search {
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -603,9 +640,19 @@
   font-size: 14px;
   width: 100%;
   outline: none;
+  transition: box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.35s ease;
 }
+
 #mobile-menu-search::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+#mobile-menu-search:focus {
+  border-color: transparent !important;
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.9),
+    0 0 16px 5px rgba(168, 85, 247, 0.35),
+    0 0 32px 8px rgba(79, 70, 229, 0.25);
 }
 
 .mobile-nav-link {
@@ -667,7 +714,7 @@
 /* ── SIZE SELECTOR SCROLL ── */
 .size-scroll-row {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -679,13 +726,13 @@
 /* Size button base */
 .size-btn {
   flex-shrink: 0;
-  height: 28px;
-  padding: 0 8px;
-  min-width: 32px;
+  height: 26px;
+  padding: 0 6px;
+  min-width: 28px;
   background: #fff;
   border: 1px solid rgba(203,213,225,0.8);
   color: #64748b;
-  border-radius: 8px;
+  border-radius: 7px;
   font-family: 'Outfit', sans-serif;
   font-weight: 700;
   display: flex;
@@ -709,21 +756,21 @@
   box-shadow: 0 1px 4px rgba(79,70,229,0.12);
 }
 .size-btn .size-label {
-  font-size: 9.5px;
+  font-size: 8.5px;
   line-height: 1;
-  margin-bottom: 1.5px;
+  margin-bottom: 1px;
   display: block;
   letter-spacing: -0.01em;
 }
 .size-btn .size-cat {
-  font-size: 4.5px;
+  font-size: 4px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   opacity: 0.6;
   border-top: 1px solid rgba(203,213,225,0.8);
   display: block;
-  padding-top: 1.5px;
+  padding-top: 1px;
   line-height: 0.5;
   width: 100%;
   text-align: center;
@@ -733,17 +780,59 @@
   opacity: 0.8;
 }
 
+/* ══════════════════════════════════════════════════
+   SPEC SELECTOR — selectable pill buttons for specs
+   ══════════════════════════════════════════════════ */
+.spec-selector-row {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+  padding-bottom: 1px;
+}
+.spec-selector-row::-webkit-scrollbar { display: none; }
+
+.spec-sel-btn {
+  flex-shrink: 0;
+  height: 20px;
+  padding: 0 5px;
+  background: #fff;
+  border: 1px solid rgba(203,213,225,0.8);
+  color: #64748b;
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  outline: none;
+  white-space: nowrap;
+}
+.spec-sel-btn:hover {
+  border-color: rgba(79,70,229,0.35);
+  color: #4f46e5;
+  background: rgba(79,70,229,0.04);
+}
+.spec-sel-btn.active {
+  background: rgba(79,70,229,0.10);
+  border-color: #4f46e5;
+  color: #4f46e5;
+  box-shadow: 0 1px 4px rgba(79,70,229,0.12);
+}
+
 /* ═══════════════════════════════════════════════════════
-   NEW: TOOLTIP SYSTEM
+   TOOLTIP SYSTEM
    ═══════════════════════════════════════════════════════ */
 
-/* Info icon button */
 .spec-info-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: rgba(100,116,139,0.12);
   border: none;
@@ -760,7 +849,7 @@
   background: rgba(79,70,229,0.15);
 }
 .spec-info-btn .spec-info-icon {
-  font-size: 9px;
+  font-size: 8px;
   color: #64748b;
   line-height: 1;
   font-family: 'Material Symbols Outlined';
@@ -776,14 +865,13 @@
   color: #4f46e5;
 }
 
-/* Tooltip popup */
 .spec-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   min-width: 140px;
-  max-width: 180px;
+  max-width: 200px;
   background: rgba(255,255,255,0.92);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -805,7 +893,6 @@
   transform: translateX(-50%) translateY(0);
   pointer-events: none;
 }
-/* Arrow */
 .spec-tooltip::after {
   content: '';
   position: absolute;
@@ -834,13 +921,35 @@
   display: block;
 }
 
-/* Spec tag wrapper needs relative positioning for tooltip */
 .spec-tag-wrap {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
+}
+
+/* ── SPEC GROUP — label row + selector row ── */
+.spec-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-right: 8px;
+  margin-right: 8px;
+  border-right: 1px solid rgba(226,232,240,0.7);
+}
+.spec-group:last-child {
+  border-right: none;
+  padding-right: 0;
+  margin-right: 0;
+}
+.spec-group-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #64748b;
 }
 
 /* Series badge */
@@ -889,7 +998,7 @@
 .series-badge.mgweave .series-dot { background: #b45309; }
 .series-badge.mgglide .series-dot { background: #4f46e5; }
 
-/* Series tooltip — same style but wider */
+/* Series tooltip */
 .series-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -944,13 +1053,13 @@
   display: block;
 }
 
-/* Size info tooltip (popover table style) */
+/* Size info tooltip */
 .size-info-btn {
   display: inline-flex;
   align-items: center;
   gap: 2px;
   font-family: 'Outfit', sans-serif;
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.10em;
@@ -962,7 +1071,7 @@
   outline: none;
   padding: 0;
   flex-shrink: 0;
-  width: 28px;
+  width: 26px;
   pointer-events: auto;
   transition: color 0.15s;
   position: relative;
@@ -1033,6 +1142,62 @@
   white-space: nowrap;
 }
 
+/* Generic spec tooltip (for spec group labels) */
+.spec-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  min-width: 140px;
+  max-width: 200px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.90),
+    0 4px 16px rgba(0,0,0,0.10),
+    0 12px 32px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  padding: 8px 10px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 200;
+  white-space: normal;
+}
+.spec-tip.tip-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.spec-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(255,255,255,0.95);
+}
+.spec-tip-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f46e5;
+  margin-bottom: 3px;
+  display: block;
+}
+.spec-tip-body {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: #475569;
+  line-height: 1.4;
+  display: block;
+}
+
 /* Button tooltips (Customize / Preview) */
 .btn-tooltip-wrap {
   position: relative;
@@ -1068,7 +1233,6 @@
   border: 4px solid transparent;
   border-top-color: rgba(15,23,42,0.88);
 }
-/* Desktop hover */
 @media (hover: hover) {
   .btn-tooltip-wrap:hover .btn-tooltip {
     opacity: 1;
@@ -1138,7 +1302,6 @@
   pointer-events: none;
 }
 
-/* Suggest step dots */
 .suggest-dot {
   width: 6px;
   height: 6px;
@@ -1152,7 +1315,6 @@
   border-radius: 99px;
 }
 
-/* Suggest option buttons */
 .suggest-opt {
   display: flex;
   align-items: center;
@@ -1204,7 +1366,6 @@
   margin-top: 1px;
 }
 
-/* Result card in suggest modal */
 .suggest-result-card {
   border-radius: 16px;
   border: 1.5px solid rgba(79,70,229,0.20);
@@ -1212,31 +1373,67 @@
   padding: 14px 16px;
 }
 
-/* Suggest for Me pill button (below catalog grid) */
+@keyframes pulseGlowSuggest {
+  0% { box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3), 0 0 0 0 rgba(79, 70, 229, 0.4); }
+  70% { box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3), 0 0 0 16px rgba(79, 70, 229, 0); }
+  100% { box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3), 0 0 0 0 rgba(79, 70, 229, 0); }
+}
+
 .suggest-trigger-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
+  gap: 8px;
+  padding: 14px 32px;
   border-radius: 99px;
-  border: 1.5px solid rgba(79,70,229,0.20);
-  background: rgba(79,70,229,0.05);
+  border: none;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   font-family: 'Outfit', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: #4f46e5;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
   cursor: pointer;
-  transition: all 0.20s ease;
+  transition: all 0.30s cubic-bezier(0.25, 1, 0.5, 1);
   outline: none;
+  animation: pulseGlowSuggest 2.5s infinite;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
 }
 .suggest-trigger-btn:hover {
-  background: rgba(79,70,229,0.10);
-  border-color: rgba(79,70,229,0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79,70,229,0.12);
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(79,70,229,0.5);
+  animation: none;
+}
+.suggest-trigger-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 4px 12px rgba(79,70,229,0.4);
 }
 .suggest-trigger-btn .material-symbols-outlined {
-  font-size: 16px;
+  font-size: 20px;
+}
+
+/* ── Spec specs grid within card ── */
+.specs-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(226,232,240,0.6);
+}
+
+/* Icon sizing for spec labels */
+.spec-icon {
+  font-size: 9px !important;
+  opacity: 0.75;
+  font-family: 'Material Symbols Outlined';
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  font-feature-settings: 'liga';
+  line-height: 1;
+  display: inline-block;
 }
 </style>
 </head>
@@ -1266,11 +1463,20 @@
         <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings:'wght' 300;">close</span>
       </button>
       <div class="mb-6">
-        <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo.png"/>
-      </div>
-      <div class="relative mb-6">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-lg select-none" style="font-variation-settings:'wght' 300;">search</span>
-        <input class="" id="mobile-menu-search" placeholder="Search..." type="text"/>
+  <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>
+</div>
+      <!--centered logo-->
+<!--      <div class="mb-6 flex justify-center">-->
+<!--  <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>-->
+<!--</div>-->
+      <!-- Mobile search with brand glow -->
+      <div class="mobile-glow-search-wrap mb-6">
+        <div class="mobile-glow-inner">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-lg select-none" style="font-variation-settings:'wght' 300;">search</span>
+            <input class="" id="mobile-menu-search" placeholder="Search..." type="text"/>
+          </div>
+        </div>
       </div>
       <nav class="flex-grow">
         <a class="mobile-nav-link" href="#"><span class="mat-icon">home</span>Home</a>
@@ -1304,9 +1510,14 @@
         <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="#">Contact</a>
       </div>
       <div class="flex items-center justify-end gap-2 md:gap-3 xl:gap-5 flex-shrink-0 z-10 xl:flex-1">
-        <div class="relative hidden lg:block">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg select-none">search</span>
-          <input class="bg-white/30 border border-white/50 rounded-full pl-9 pr-4 py-1.5 text-sm w-32 xl:w-44 focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md placeholder:text-on-surface-variant/70" placeholder="Search..." type="text"/>
+        <!-- Desktop search with brand glow -->
+        <div class="glow-search-wrap hidden lg:block">
+          <div class="glow-search-inner">
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg select-none">search</span>
+              <input class="bg-white/30 border border-white/50 rounded-full pl-9 pr-4 py-1.5 text-sm w-32 xl:w-44 focus:outline-none backdrop-blur-md placeholder:text-on-surface-variant/70" placeholder="Search..." type="text"/>
+            </div>
+          </div>
         </div>
         <button class="lg:hidden flex items-center justify-center w-9 h-9 flex-shrink-0" onclick="document.getElementById('mobile-menu').classList.add('open'); document.getElementById('mobile-menu-search').focus();">
           <span class="material-symbols-outlined text-on-surface-variant text-[22px]">search</span>
@@ -1425,7 +1636,18 @@
 <section id="catalog-section" class="py-12 md:py-20 lg:py-24 bg-surface" data-component-list="StaggeredFadeIn">
   <div class="max-w-[1440px] mx-auto px-4 md:px-6 xl:px-10 flex flex-col justify-center items-center lg:block">
 
-    <h2 class="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-surface mb-8 md:mb-10 lg:mb-12 px-0 w-full" data-staggered-item>Mousepad Design Catalog</h2>
+    <div class="flex items-center justify-between mb-8 md:mb-10 lg:mb-12 w-full px-0" data-staggered-item>
+      <h2 class="font-headline text-2xl md:text-3xl lg:text-4xl font-bold text-on-surface m-0">Mousepad Design Catalog</h2>
+      <!-- Mobile View Toggle -->
+      <div class="lg:hidden flex items-center bg-white border border-outline-variant/60 rounded-lg p-[3px] shadow-sm ml-4 flex-shrink-0">
+        <button id="view-toggle-deck" class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-primary bg-primary/10 transition-colors" onclick="toggleCatalogView('deck')" aria-label="Deck View">
+          <span class="material-symbols-outlined text-[18px] sm:text-[20px]">view_carousel</span>
+        </button>
+        <button id="view-toggle-grid" class="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleCatalogView('grid')" aria-label="Grid View">
+          <span class="material-symbols-outlined text-[18px] sm:text-[20px]">grid_view</span>
+        </button>
+      </div>
+    </div>
 
     <div id="catalog-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 w-full">
 
@@ -1443,108 +1665,23 @@
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series badge -->
-          <div class="mb-4 pointer-events-none relative" style="pointer-events:auto;">
-            <div class="relative inline-block">
-              <button class="series-badge mgweave" data-series="mgweave" aria-label="MGweave series info">
-                <span class="series-dot"></span>MGweave
-              </button>
-              <div class="series-tooltip" id="series-tip-1">
-                <span class="series-tooltip-name mgweave">MGweave</span>
-                <span class="series-tooltip-desc">Fabric mousepads built for consistent performance and everyday reliability.</span>
+          <!-- Series selector -->
+          <div class="mb-2.5 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
+              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
+              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+              <button class="spec-info-btn" data-tip-id="series-tip-1-info"><span class="spec-info-icon">info</span></button>
+              <div class="spec-tooltip" id="series-tip-1-info">
+                <span class="spec-tooltip-title">Series</span>
+                <span class="spec-tooltip-body">Different mousepad types based on material and performance.</span>
               </div>
+            </div>
+            <div class="spec-selector-row" data-spec-group="series-1">
+              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
+              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
             </div>
           </div>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-4 pointer-events-none" style="pointer-events:auto;">
-            <!-- Spec Tags — 5 cols scrollable -->
-            <div class="flex gap-0 overflow-x-auto mb-2.5 pb-2.5 border-b border-white/50 w-full" style="scrollbar-width:none;">
-              <!-- Surface -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">speed</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">SURFACE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-1-surface"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Speed</span>
-                <div class="spec-tooltip" id="tip-1-surface">
-                  <span class="spec-tooltip-title">Speed Surface</span>
-                  <span class="spec-tooltip-body">Low resistance surface for faster, smoother mouse movement.</span>
-                </div>
-              </div>
-              <!-- Base / Grip -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">sports_esports</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">GRIP</span>
-                  <button class="spec-info-btn" data-tip-id="tip-1-base"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Esports</span>
-                <div class="spec-tooltip" id="tip-1-base">
-                  <span class="spec-tooltip-title">Esports Grip</span>
-                  <span class="spec-tooltip-body">Maximum desk grip with minimal movement during intense use.</span>
-                </div>
-              </div>
-              <!-- Edge -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">join_inner</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">EDGE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-1-edge"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Overlocked</span>
-                <div class="spec-tooltip" id="tip-1-edge">
-                  <span class="spec-tooltip-title">Overlocked Edge</span>
-                  <span class="spec-tooltip-body">Stitched edges for added durability and fray resistance.</span>
-                </div>
-              </div>
-              <!-- Thickness -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">layers</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">THICK</span>
-                  <button class="spec-info-btn" data-tip-id="tip-1-thick"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">3mm</span>
-                <div class="spec-tooltip" id="tip-1-thick">
-                  <span class="spec-tooltip-title">Thickness</span>
-                  <span class="spec-tooltip-body">Affects comfort, softness, and control feel under your wrist.</span>
-                </div>
-              </div>
-            </div>
-            <!-- Size Selector -->
-            <div class="flex items-center gap-2 mb-[3px] justify-between">
-              <div class="relative flex-shrink-0">
-                <button class="size-info-btn" data-tip-id="tip-1-size">
-                  SIZE
-                  <span class="material-symbols-outlined" style="font-size:8px;opacity:0.6;">expand_more</span>
-                </button>
-                <div class="size-tooltip" id="tip-1-size">
-                  <span class="size-tooltip-title">Size Guide</span>
-                  <table>
-                    <tr><td>S</td><td>250×210mm — Compact</td></tr>
-                    <tr><td>M</td><td>350×300mm — Standard</td></tr>
-                    <tr><td>L</td><td>450×400mm — Standard</td></tr>
-                    <tr><td>L+</td><td>490×420mm — Standard</td></tr>
-                    <tr><td>XL</td><td>900×400mm — Extended</td></tr>
-                    <tr><td>XXL</td><td>1000×500mm — Extended</td></tr>
-                    <tr><td>XXXL</td><td>1200×600mm — Extended</td></tr>
-                  </table>
-                </div>
-              </div>
-              <div class="size-scroll-row flex-1" data-dim-target="dim-1">
-                <button class="size-btn" data-dim="490×420" data-size="L+"><span class="size-label">L+</span><span class="size-cat">STD</span></button>
-                <button class="size-btn active" data-dim="900×400" data-size="XL"><span class="size-label">XL</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn" data-dim="1000×500" data-size="XXL"><span class="size-label">XXL</span><span class="size-cat">EXT</span></button>
-              </div>
-            </div>
-            <div class="flex items-center mt-1 pointer-events-none">
-              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 w-[28px]">DIM</span>
-              <div id="dim-1" class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">×</span>400<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
                 <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
@@ -1586,107 +1723,23 @@
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series badge -->
-          <div class="mb-4 relative" style="pointer-events:auto;">
-            <div class="relative inline-block">
-              <button class="series-badge mgweave" data-series="mgweave" aria-label="MGweave series info">
-                <span class="series-dot"></span>MGweave
-              </button>
-              <div class="series-tooltip" id="series-tip-2">
-                <span class="series-tooltip-name mgweave">MGweave</span>
-                <span class="series-tooltip-desc">Fabric mousepads built for consistent performance and everyday reliability.</span>
+          <!-- Series selector -->
+          <div class="mb-2.5 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
+              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
+              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+              <button class="spec-info-btn" data-tip-id="series-tip-2-info"><span class="spec-info-icon">info</span></button>
+              <div class="spec-tooltip" id="series-tip-2-info">
+                <span class="spec-tooltip-title">Series</span>
+                <span class="spec-tooltip-body">Different mousepad types based on material and performance.</span>
               </div>
+            </div>
+            <div class="spec-selector-row" data-spec-group="series-2">
+              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
+              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
             </div>
           </div>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-4" style="pointer-events:auto;">
-            <div class="flex gap-0 overflow-x-auto mb-2.5 pb-2.5 border-b border-white/50 w-full" style="scrollbar-width:none;">
-              <!-- Surface -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">tune</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">SURFACE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-2-surface"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Control</span>
-                <div class="spec-tooltip" id="tip-2-surface">
-                  <span class="spec-tooltip-title">Control Surface</span>
-                  <span class="spec-tooltip-body">Higher friction surface for better stopping power and precision.</span>
-                </div>
-              </div>
-              <!-- Grip -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">balance</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">GRIP</span>
-                  <button class="spec-info-btn" data-tip-id="tip-2-base"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Balance</span>
-                <div class="spec-tooltip" id="tip-2-base">
-                  <span class="spec-tooltip-title">Balance Grip</span>
-                  <span class="spec-tooltip-body">More stable with a consistent desk hold.</span>
-                </div>
-              </div>
-              <!-- Edge -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">join_inner</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">EDGE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-2-edge"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Overlocked</span>
-                <div class="spec-tooltip" id="tip-2-edge">
-                  <span class="spec-tooltip-title">Overlocked Edge</span>
-                  <span class="spec-tooltip-body">Stitched edges for added durability and fray resistance.</span>
-                </div>
-              </div>
-              <!-- Thickness -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">layers</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">THICK</span>
-                  <button class="spec-info-btn" data-tip-id="tip-2-thick"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">3mm</span>
-                <div class="spec-tooltip" id="tip-2-thick">
-                  <span class="spec-tooltip-title">Thickness</span>
-                  <span class="spec-tooltip-body">Affects comfort, softness, and control feel under your wrist.</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 mb-[3px] justify-between">
-              <div class="relative flex-shrink-0">
-                <button class="size-info-btn" data-tip-id="tip-2-size">
-                  SIZE
-                  <span class="material-symbols-outlined" style="font-size:8px;opacity:0.6;">expand_more</span>
-                </button>
-                <div class="size-tooltip" id="tip-2-size">
-                  <span class="size-tooltip-title">Size Guide</span>
-                  <table>
-                    <tr><td>S</td><td>250×210mm — Compact</td></tr>
-                    <tr><td>M</td><td>350×300mm — Standard</td></tr>
-                    <tr><td>L</td><td>450×400mm — Standard</td></tr>
-                    <tr><td>L+</td><td>490×420mm — Standard</td></tr>
-                    <tr><td>XL</td><td>900×400mm — Extended</td></tr>
-                    <tr><td>XXL</td><td>1000×500mm — Extended</td></tr>
-                    <tr><td>XXXL</td><td>1200×600mm — Extended</td></tr>
-                  </table>
-                </div>
-              </div>
-              <div class="size-scroll-row flex-1" data-dim-target="dim-2">
-                <button class="size-btn" data-dim="250×210" data-size="S"><span class="size-label">S</span><span class="size-cat">COM</span></button>
-                <button class="size-btn active" data-dim="350×300" data-size="M"><span class="size-label">M</span><span class="size-cat">STD</span></button>
-                <button class="size-btn" data-dim="450×400" data-size="L"><span class="size-label">L</span><span class="size-cat">STD</span></button>
-                <button class="size-btn" data-dim="490×420" data-size="L+"><span class="size-label">L+</span><span class="size-cat">STD</span></button>
-              </div>
-            </div>
-            <div class="flex items-center mt-1 pointer-events-none">
-              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 w-[28px]">DIM</span>
-              <div id="dim-2" class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                350<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">×</span>300<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
                 <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
@@ -1728,104 +1781,23 @@
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series badge -->
-          <div class="mb-4 relative" style="pointer-events:auto;">
-            <div class="relative inline-block">
-              <button class="series-badge mgweave" data-series="mgweave" aria-label="MGweave series info">
-                <span class="series-dot"></span>MGweave
-              </button>
-              <div class="series-tooltip" id="series-tip-3">
-                <span class="series-tooltip-name mgweave">MGweave</span>
-                <span class="series-tooltip-desc">Fabric mousepads built for consistent performance and everyday reliability.</span>
+          <!-- Series selector -->
+          <div class="mb-2.5 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
+              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
+              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+              <button class="spec-info-btn" data-tip-id="series-tip-3-info"><span class="spec-info-icon">info</span></button>
+              <div class="spec-tooltip" id="series-tip-3-info">
+                <span class="spec-tooltip-title">Series</span>
+                <span class="spec-tooltip-body">Different mousepad types based on material and performance.</span>
               </div>
+            </div>
+            <div class="spec-selector-row" data-spec-group="series-3">
+              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
+              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
             </div>
           </div>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-4" style="pointer-events:auto;">
-            <div class="flex gap-0 overflow-x-auto mb-2.5 pb-2.5 border-b border-white/50 w-full" style="scrollbar-width:none;">
-              <!-- Surface -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">speed</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">SURFACE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-3-surface"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Speed</span>
-                <div class="spec-tooltip" id="tip-3-surface">
-                  <span class="spec-tooltip-title">Speed Surface</span>
-                  <span class="spec-tooltip-body">Low resistance surface for faster, smoother mouse movement.</span>
-                </div>
-              </div>
-              <!-- Grip -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">sports_esports</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">GRIP</span>
-                  <button class="spec-info-btn" data-tip-id="tip-3-base"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Esports</span>
-                <div class="spec-tooltip" id="tip-3-base">
-                  <span class="spec-tooltip-title">Esports Grip</span>
-                  <span class="spec-tooltip-body">Maximum desk grip with minimal movement during intense use.</span>
-                </div>
-              </div>
-              <!-- Edge -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">content_cut</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">EDGE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-3-edge"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Stitchless</span>
-                <div class="spec-tooltip" id="tip-3-edge">
-                  <span class="spec-tooltip-title">Stitchless Edge</span>
-                  <span class="spec-tooltip-body">Clean cut edges for a minimal, seamless look.</span>
-                </div>
-              </div>
-              <!-- Thickness -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">layers</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">THICK</span>
-                  <button class="spec-info-btn" data-tip-id="tip-3-thick"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">4mm</span>
-                <div class="spec-tooltip" id="tip-3-thick">
-                  <span class="spec-tooltip-title">Thickness</span>
-                  <span class="spec-tooltip-body">Affects comfort, softness, and control feel under your wrist.</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 mb-[3px] justify-between">
-              <div class="relative flex-shrink-0">
-                <button class="size-info-btn" data-tip-id="tip-3-size">
-                  SIZE
-                  <span class="material-symbols-outlined" style="font-size:8px;opacity:0.6;">expand_more</span>
-                </button>
-                <div class="size-tooltip" id="tip-3-size">
-                  <span class="size-tooltip-title">Size Guide</span>
-                  <table>
-                    <tr><td>L</td><td>700×300mm — Extended</td></tr>
-                    <tr><td>XL</td><td>900×400mm — Extended</td></tr>
-                    <tr><td>XXL</td><td>1000×500mm — Extended</td></tr>
-                    <tr><td>XXXL</td><td>1200×600mm — Extended</td></tr>
-                  </table>
-                </div>
-              </div>
-              <div class="size-scroll-row flex-1" data-dim-target="dim-3">
-                <button class="size-btn" data-dim="700×300" data-size="L"><span class="size-label">L</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn" data-dim="900×400" data-size="XL"><span class="size-label">XL</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn active" data-dim="1000×500" data-size="XXL"><span class="size-label">XXL</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn" data-dim="1200×600" data-size="XXXL"><span class="size-label">XXXL</span><span class="size-cat">EXT</span></button>
-              </div>
-            </div>
-            <div class="flex items-center mt-1 pointer-events-none">
-              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 w-[28px]">DIM</span>
-              <div id="dim-3" class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                1000<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">×</span>500<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
                 <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
@@ -1868,102 +1840,23 @@
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series badge — MG Glide -->
-          <div class="mb-4 relative" style="pointer-events:auto;">
-            <div class="relative inline-block">
-              <button class="series-badge mgglide" data-series="mgglide" aria-label="MG Glide series info">
-                <span class="series-dot"></span>MG Glide
-              </button>
-              <div class="series-tooltip" id="series-tip-4">
-                <span class="series-tooltip-name mgglide">MG Glide</span>
-                <span class="series-tooltip-desc">Glass mousepads with ultra-smooth glide, long-lasting durability, and esports-level performance.</span>
+          <!-- Series selector — MG Glide default -->
+          <div class="mb-2.5 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
+              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
+              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+              <button class="spec-info-btn" data-tip-id="series-tip-4-info"><span class="spec-info-icon">info</span></button>
+              <div class="spec-tooltip" id="series-tip-4-info">
+                <span class="spec-tooltip-title">Series</span>
+                <span class="spec-tooltip-body">Different mousepad types based on material and performance.</span>
               </div>
+            </div>
+            <div class="spec-selector-row" data-spec-group="series-4">
+              <button class="spec-sel-btn" data-value="mgweave">MGweave</button>
+              <button class="spec-sel-btn active" data-value="mgglide">MG Glide</button>
             </div>
           </div>
-          <div class="mt-auto bg-white/60 backdrop-blur-md border border-white/50 rounded-[24px] p-2.5 sm:p-3 mb-4" style="pointer-events:auto;">
-            <div class="flex gap-0 overflow-x-auto mb-2.5 pb-2.5 border-b border-white/50 w-full" style="scrollbar-width:none;">
-              <!-- Surface -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">speed</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">SURFACE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-4-surface"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Speed</span>
-                <div class="spec-tooltip" id="tip-4-surface">
-                  <span class="spec-tooltip-title">Speed Surface</span>
-                  <span class="spec-tooltip-body">Low resistance surface for faster, smoother mouse movement.</span>
-                </div>
-              </div>
-              <!-- Grip -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">balance</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">GRIP</span>
-                  <button class="spec-info-btn" data-tip-id="tip-4-base"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Balance</span>
-                <div class="spec-tooltip" id="tip-4-base">
-                  <span class="spec-tooltip-title">Balance Grip</span>
-                  <span class="spec-tooltip-body">More stable with a consistent desk hold.</span>
-                </div>
-              </div>
-              <!-- Edge -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">content_cut</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">EDGE</span>
-                  <button class="spec-info-btn" data-tip-id="tip-4-edge"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">Stitchless</span>
-                <div class="spec-tooltip" id="tip-4-edge">
-                  <span class="spec-tooltip-title">Stitchless Edge</span>
-                  <span class="spec-tooltip-body">Clean cut edges for a minimal, seamless look.</span>
-                </div>
-              </div>
-              <!-- Thickness -->
-              <div class="spec-tag-wrap flex-shrink-0 pr-2 mr-2" style="border-right:1px solid rgba(255,255,255,0.6);">
-                <div class="flex items-center gap-[3px] text-slate-500">
-                  <span class="material-symbols-outlined text-[10px] opacity-80">layers</span>
-                  <span class="text-[7.5px] font-extrabold uppercase tracking-[0.1em] opacity-90">THICK</span>
-                  <button class="spec-info-btn" data-tip-id="tip-4-thick"><span class="spec-info-icon">info</span></button>
-                </div>
-                <span class="text-[9.5px] font-bold text-slate-800 tracking-tight leading-none pl-[1px]">4mm</span>
-                <div class="spec-tooltip" id="tip-4-thick">
-                  <span class="spec-tooltip-title">Thickness</span>
-                  <span class="spec-tooltip-body">Affects comfort, softness, and control feel under your wrist.</span>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 mb-[3px] justify-between">
-              <div class="relative flex-shrink-0">
-                <button class="size-info-btn" data-tip-id="tip-4-size">
-                  SIZE
-                  <span class="material-symbols-outlined" style="font-size:8px;opacity:0.6;">expand_more</span>
-                </button>
-                <div class="size-tooltip" id="tip-4-size">
-                  <span class="size-tooltip-title">Size Guide</span>
-                  <table>
-                    <tr><td>XL</td><td>900×400mm — Extended</td></tr>
-                    <tr><td>XXL</td><td>1000×500mm — Extended</td></tr>
-                    <tr><td>XXXL</td><td>1200×600mm — Extended</td></tr>
-                  </table>
-                </div>
-              </div>
-              <div class="size-scroll-row flex-1" data-dim-target="dim-4">
-                <button class="size-btn active" data-dim="900×400" data-size="XL"><span class="size-label">XL</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn" data-dim="1000×500" data-size="XXL"><span class="size-label">XXL</span><span class="size-cat">EXT</span></button>
-                <button class="size-btn" data-dim="1200×600" data-size="XXXL"><span class="size-label">XXXL</span><span class="size-cat">EXT</span></button>
-              </div>
-            </div>
-            <div class="flex items-center mt-1 pointer-events-none">
-              <span class="text-[8.5px] font-bold uppercase tracking-[0.1em] text-slate-500 opacity-80 flex-shrink-0 w-[28px]">DIM</span>
-              <div id="dim-4" class="flex items-baseline text-[10.5px] font-bold text-slate-800 tracking-tight gap-[1px]">
-                900<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">×</span>400<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
                 <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
@@ -2008,12 +1901,9 @@
 <!-- ═══════ SUGGEST FOR ME MODAL ═══════ -->
 <div id="suggest-modal-backdrop" onclick="handleSuggestBackdropClick(event)">
   <div id="suggest-modal">
-    <!-- Close btn -->
     <button onclick="closeSuggestModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-colors" style="background:rgba(100,116,139,0.1);border:none;cursor:pointer;" aria-label="Close">
       <span class="material-symbols-outlined text-slate-400" style="font-size:18px;">close</span>
     </button>
-
-    <!-- Header -->
     <div class="mb-6">
       <div class="flex items-center gap-2 mb-1">
         <span class="material-symbols-outlined text-primary" style="font-size:20px;">auto_awesome</span>
@@ -2021,18 +1911,12 @@
       </div>
       <p class="text-on-surface-variant text-[12px] font-medium">Answer a few quick questions to find your perfect mousepad.</p>
     </div>
-
-    <!-- Step dots -->
     <div class="flex items-center gap-2 mb-6" id="suggest-dots">
       <div class="suggest-dot active" data-step="0"></div>
       <div class="suggest-dot" data-step="1"></div>
       <div class="suggest-dot" data-step="2"></div>
     </div>
-
-    <!-- Steps container -->
     <div id="suggest-steps">
-
-      <!-- Step 0: Playstyle -->
       <div class="suggest-step" data-step="0">
         <p class="font-headline font-bold text-[13px] text-on-surface mb-3">What's your primary use?</p>
         <div class="flex flex-col gap-2">
@@ -2050,8 +1934,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Step 1: Desk size -->
       <div class="suggest-step hidden" data-step="1">
         <p class="font-headline font-bold text-[13px] text-on-surface mb-3">How much desk space do you have?</p>
         <div class="flex flex-col gap-2">
@@ -2069,8 +1951,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Step 2: Feel preference -->
       <div class="suggest-step hidden" data-step="2">
         <p class="font-headline font-bold text-[13px] text-on-surface mb-3">What mouse feel do you prefer?</p>
         <div class="flex flex-col gap-2">
@@ -2088,21 +1968,12 @@
           </button>
         </div>
       </div>
-
-      <!-- Result step -->
       <div class="suggest-step hidden" data-step="result">
         <div id="suggest-result-content"></div>
-        <button onclick="closeSuggestModal()" class="w-full bg-primary text-white py-3 rounded-[16px] font-headline font-bold text-sm hover:bg-indigo-700 transition-all active:scale-95 mt-4">
-          Browse Catalog
-        </button>
-        <button onclick="resetSuggestModal()" class="w-full text-on-surface-variant text-xs font-semibold mt-2 py-1 hover:text-primary transition-colors">
-          Start over
-        </button>
+        <button onclick="closeSuggestModal()" class="w-full bg-primary text-white py-3 rounded-[16px] font-headline font-bold text-sm hover:bg-indigo-700 transition-all active:scale-95 mt-4">Browse Catalog</button>
+        <button onclick="resetSuggestModal()" class="w-full text-on-surface-variant text-xs font-semibold mt-2 py-1 hover:text-primary transition-colors">Start over</button>
       </div>
-
     </div>
-
-    <!-- Nav buttons -->
     <div class="flex justify-between items-center mt-6" id="suggest-nav">
       <button id="suggest-back-btn" onclick="suggestBack()" class="text-on-surface-variant text-[12px] font-semibold flex items-center gap-1 hover:text-primary transition-colors" style="display:none!important;">
         <span class="material-symbols-outlined text-[14px]">arrow_back</span> Back
@@ -2262,6 +2133,70 @@
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMobileMenu(); closeSuggestModal(); } });
 
+  /* ── Smooth Soft-Lock: Catalog Section (Mobile) ── */
+  (function() {
+    const catalogSection = document.getElementById('catalog-section');
+    if (!catalogSection) return;
+
+    let scrollTimer = null;
+    let lastScrollY = window.scrollY;
+    let lastScrollTime = Date.now();
+    let locked = false;
+    let lastSnapTime = 0;
+
+    function isMobile() { return window.innerWidth < 1024; }
+
+    function snapToSection() {
+      if (!isMobile() || locked) return;
+
+      const now = Date.now();
+      // Throttle: don't snap again within 1.2s of last snap
+      if (now - lastSnapTime < 1200) return;
+
+      const rect = catalogSection.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      // How much of the section is visible (clamped to viewport)
+      const visibleTop = Math.max(0, rect.top);
+      const visibleBottom = Math.min(vh, rect.bottom);
+      const visiblePx = Math.max(0, visibleBottom - visibleTop);
+      const visibleRatio = visiblePx / vh;
+
+      // Velocity: px scrolled per ms since last event
+      const timeDelta = Math.max(1, now - lastScrollTime);
+      const scrollVelocity = Math.abs(window.scrollY - lastScrollY) / timeDelta;
+
+      // Only nudge into view when partially visible (25–80%) AND scroll is slow (settled)
+      if (visibleRatio > 0.25 && visibleRatio < 0.80 && scrollVelocity < 0.9) {
+        locked = true;
+        lastSnapTime = now;
+
+        // Align top of section with a small breathing-room offset (nav height ~76px + 8px)
+        const targetY = window.scrollY + rect.top - 84;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+
+        // Release lock after smooth scroll completes (~700ms)
+        setTimeout(() => { locked = false; }, 750);
+      }
+    }
+
+    window.addEventListener('scroll', function() {
+      const now = Date.now();
+      // Track velocity: capture position just before each new debounce window
+      if (!scrollTimer) {
+        lastScrollY = window.scrollY;
+        lastScrollTime = now;
+      }
+
+      clearTimeout(scrollTimer);
+      // Wait for scroll to fully settle (150ms idle) before evaluating snap
+      scrollTimer = setTimeout(() => {
+        scrollTimer = null;
+        snapToSection();
+      }, 150);
+    }, { passive: true });
+  })();
+
   /* ── Smart CTA Behavior ── */
   const smartCta = document.getElementById('smart-cta');
   const heroBanner = document.getElementById('hero-banner-section');
@@ -2320,9 +2255,22 @@
           row.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           if (dimEl) {
-            const [w, h] = btn.getAttribute('data-dim').split('×');
-            dimEl.innerHTML = `${w}<span class="font-sans font-medium text-slate-400 mx-[3px] text-[9px]">×</span>${h}<span class="text-slate-500 font-sans text-[9px] ml-[4px] font-medium tracking-normal lowercase">mm</span>`;
+            const[w, h] = btn.getAttribute('data-dim').split('×');
+            dimEl.innerHTML = `${w}<span class="font-sans font-medium text-slate-400 mx-[3px] text-[8px]">×</span>${h}<span class="text-slate-500 font-sans text-[8px] ml-[4px] font-medium tracking-normal lowercase">mm</span>`;
           }
+        });
+      });
+    });
+  });
+
+  /* ── Spec Selector: single-select within group ── */
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.spec-selector-row').forEach(row => {
+      row.querySelectorAll('.spec-sel-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          row.querySelectorAll('.spec-sel-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
         });
       });
     });
@@ -2333,9 +2281,23 @@
     const catalogGrid = document.getElementById('catalog-cards-grid');
     if (!catalogGrid) return;
     let isMobileDeckActive = false;
+    let preferDeckView = true;
     let cards = Array.from(catalogGrid.querySelectorAll('.deck-card-item'));
     const desktopClasses = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 w-full";
     const mobileClasses = "mobile-deck-wrapper block";
+
+    window.toggleCatalogView = function(view) {
+      if (view === 'deck') {
+        preferDeckView = true;
+        document.getElementById('view-toggle-deck').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-primary bg-primary/10 transition-colors";
+        document.getElementById('view-toggle-grid').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-slate-400 hover:text-slate-600 transition-colors";
+      } else {
+        preferDeckView = false;
+        document.getElementById('view-toggle-grid').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-primary bg-primary/10 transition-colors";
+        document.getElementById('view-toggle-deck').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-slate-400 hover:text-slate-600 transition-colors";
+      }
+      checkWidthSwitchDeck();
+    };
 
     function updateCardVisuals(animated = true) {
       cards.forEach((card, i) => {
@@ -2415,7 +2377,7 @@
     }
 
     function checkWidthSwitchDeck() {
-      if (window.innerWidth < 1024) {
+      if (window.innerWidth < 1024 && preferDeckView) {
         if (!isMobileDeckActive) {
           isMobileDeckActive = true;
           catalogGrid.className = mobileClasses;
@@ -2431,7 +2393,7 @@
         if (isMobileDeckActive) {
           isMobileDeckActive = false;
           catalogGrid.className = desktopClasses;
-          cards.forEach(c => { c.style = ''; c.onmousedown = null; c.ontouchstart = null; });
+          cards.forEach(c => { c.style = ''; c.onmousedown = null; c.ontouchstart = null; c.onmousemove = null; c.ontouchmove = null; c.onmouseup = null; c.ontouchend = null; });
         }
       }
     }
@@ -2465,7 +2427,7 @@
   });
 
   /* ═══════════════════════════════════════════════════════
-     NEW: TOOLTIP SYSTEM
+     TOOLTIP SYSTEM
      ═══════════════════════════════════════════════════════ */
   document.addEventListener("DOMContentLoaded", () => {
     let activeTip = null;
@@ -2494,12 +2456,8 @@
       const tipId = btn.getAttribute('data-tip-id');
       const tipEl = document.getElementById(tipId);
       if (!tipEl) return;
-
-      /* Desktop: hover */
       btn.addEventListener('mouseenter', () => showTip(tipEl, btn));
       btn.addEventListener('mouseleave', () => hideTip(tipEl, btn));
-
-      /* Mobile + desktop: click/tap toggle */
       btn.addEventListener('click', e => {
         e.stopPropagation();
         toggleTip(tipEl, btn);
@@ -2511,7 +2469,6 @@
       const tipId = btn.getAttribute('data-tip-id');
       const tipEl = document.getElementById(tipId);
       if (!tipEl) return;
-
       btn.addEventListener('mouseenter', () => showTip(tipEl, btn));
       btn.addEventListener('mouseleave', () => hideTip(tipEl, btn));
       btn.addEventListener('click', e => {
@@ -2520,32 +2477,16 @@
       });
     });
 
-    /* ── Series badge tooltips ── */
-    document.querySelectorAll('.series-badge').forEach(badge => {
-      const card = badge.closest('[data-staggered-item]') || badge.closest('.deck-card-item');
-      /* find the sibling series-tooltip */
-      const tipEl = badge.parentElement.querySelector('.series-tooltip');
-      if (!tipEl) return;
-
-      badge.addEventListener('mouseenter', () => showTip(tipEl, badge));
-      badge.addEventListener('mouseleave', () => hideTip(tipEl, badge));
-      badge.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleTip(tipEl, badge);
-      });
-    });
-
     /* ── Dismiss on outside click ── */
     document.addEventListener('click', () => {
       if (activeTip) {
         activeTip.classList.remove('tip-visible');
-        /* also remove active-tip from any btn */
         document.querySelectorAll('.active-tip').forEach(b => b.classList.remove('active-tip'));
         activeTip = null;
       }
     });
 
-    /* ── Auto-dismiss after 3s on mobile (touch only) ── */
+    /* ── Auto-dismiss after 3s on mobile ── */
     let autoHideTimer = null;
     document.addEventListener('touchstart', () => {
       if (autoHideTimer) clearTimeout(autoHideTimer);
@@ -2560,7 +2501,7 @@
   });
 
   /* ═══════════════════════════════════════════════════════
-     NEW: SUGGEST FOR ME MODAL
+     SUGGEST FOR ME MODAL
      ═══════════════════════════════════════════════════════ */
   let suggestStep = 0;
   const suggestAnswers = {};
@@ -2583,15 +2524,11 @@
   function resetSuggestModal(reopen = true) {
     suggestStep = 0;
     Object.keys(suggestAnswers).forEach(k => delete suggestAnswers[k]);
-    /* show step 0 */
     document.querySelectorAll('.suggest-step').forEach(s => s.classList.add('hidden'));
     const step0 = document.querySelector('.suggest-step[data-step="0"]');
     if (step0) step0.classList.remove('hidden');
-    /* reset dots */
     updateSuggestDots(0);
-    /* reset opts */
     document.querySelectorAll('.suggest-opt').forEach(o => o.classList.remove('selected'));
-    /* reset nav */
     const nextBtn = document.getElementById('suggest-next-btn');
     const backBtn = document.getElementById('suggest-back-btn');
     nextBtn.disabled = true;
@@ -2619,7 +2556,6 @@
     btn.classList.add('selected');
     const stepNum = parseInt(stepEl.getAttribute('data-step'));
     suggestAnswers[stepNum] = btn.getAttribute('data-value');
-    /* enable next */
     const nextBtn = document.getElementById('suggest-next-btn');
     nextBtn.disabled = false;
     nextBtn.style.opacity = '1';
@@ -2632,14 +2568,11 @@
     if (!suggestAnswers[suggestStep]) return;
     const maxStep = 2;
     if (suggestStep < maxStep) {
-      /* hide current */
       document.querySelector(`.suggest-step[data-step="${suggestStep}"]`).classList.add('hidden');
       suggestStep++;
       document.querySelector(`.suggest-step[data-step="${suggestStep}"]`).classList.remove('hidden');
       updateSuggestDots(suggestStep);
-      /* back btn */
       document.getElementById('suggest-back-btn').style.display = 'flex';
-      /* reset next if no answer yet for this step */
       const nextBtn = document.getElementById('suggest-next-btn');
       if (!suggestAnswers[suggestStep]) {
         nextBtn.disabled = true;
@@ -2648,12 +2581,10 @@
         nextBtn.style.background = 'rgba(15,23,42,0.10)';
         nextBtn.style.color = '#64748b';
       }
-      /* change Next to "See Result" on last step */
       nextBtn.innerHTML = suggestStep === maxStep
         ? 'See Result <span class="material-symbols-outlined text-[14px] align-[-3px]">auto_awesome</span>'
         : 'Next <span class="material-symbols-outlined text-[14px] align-[-3px]">arrow_forward</span>';
     } else {
-      /* show result */
       document.querySelector(`.suggest-step[data-step="${suggestStep}"]`).classList.add('hidden');
       document.querySelector(`.suggest-step[data-step="result"]`).classList.remove('hidden');
       document.getElementById('suggest-nav').style.display = 'none';
@@ -2667,7 +2598,6 @@
     document.querySelector(`.suggest-step[data-step="${suggestStep}"]`).classList.remove('hidden');
     updateSuggestDots(suggestStep);
     if (suggestStep === 0) document.getElementById('suggest-back-btn').style.display = 'none';
-    /* restore next btn state */
     const nextBtn = document.getElementById('suggest-next-btn');
     nextBtn.innerHTML = 'Next <span class="material-symbols-outlined text-[14px] align-[-3px]">arrow_forward</span>';
     if (suggestAnswers[suggestStep]) {
@@ -2690,7 +2620,6 @@
     const desk = suggestAnswers[1];
     const feel = suggestAnswers[2];
 
-    /* Determine series */
     let series = 'MGweave';
     let seriesClass = 'mgweave';
     let seriesDesc = 'Fabric — consistent performance & everyday reliability';
@@ -2699,20 +2628,17 @@
       seriesDesc = 'Glass — ultra-smooth glide & esports-level performance';
     }
 
-    /* Determine size */
     let sizeRec = 'M (350×300mm)';
     let sizeReason = 'Compact and precise for standard setups';
     if (desk === 'large') { sizeRec = 'XXL (1000×500mm)'; sizeReason = 'Full desk coverage for wide battlestations'; }
     else if (desk === 'medium' && (use === 'fps' || use === 'casual')) { sizeRec = 'XL (900×400mm)'; sizeReason = 'Ideal for standard gaming desks with room to move'; }
     else if (desk === 'medium') { sizeRec = 'L+ (490×420mm)'; sizeReason = 'Great balance of coverage and desk space'; }
 
-    /* Determine surface */
     let surfaceRec = 'Control';
     let surfaceDesc = 'Higher friction — better stopping power and precision';
     if (feel === 'speed') { surfaceRec = 'Speed'; surfaceDesc = 'Low resistance — faster, smoother mouse movement'; }
     else if (feel === 'balanced') { surfaceRec = 'Control'; surfaceDesc = 'Best balance of speed and stopping power'; }
 
-    /* Determine edge */
     let edgeRec = 'Overlocked';
     let edgeDesc = 'Stitched edges — durable and fray-resistant';
     if (use === 'work') { edgeRec = 'Stitchless'; edgeDesc = 'Clean minimal edges — sleek and seamless'; }

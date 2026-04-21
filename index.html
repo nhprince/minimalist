@@ -305,6 +305,18 @@
     0 2px 8px  rgba(0, 0, 0, 0.05),
     0 8px 24px rgba(0, 0, 0, 0.07);
   overflow: hidden;
+  
+  /* Fixes GPU chunk separation gaps causing white scaling stripes natively */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-mask-image: -webkit-radial-gradient(white, black); /* Solves masking bleeds over images */
+}
+
+/* Enforce the single frame rendering rules down entirely toward your child reels image too! */
+.crystal-glass img {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  outline: 1px solid transparent; 
 }
 
 .crystal-glass::before {
@@ -396,10 +408,9 @@
 
 /* ── Mobile Deck & Soft Page Lock System Ruleset  ── */
 @media (max-width: 1023px) {
-  /* NOTE: CSS scroll-snap removed — replaced with smooth JS soft-lock below */
   .mobile-deck-wrapper {
     position: relative;
-    height: 400px; 
+    height: 420px; 
     width: 100%;
     max-width: 380px; 
     margin: 0 auto; 
@@ -522,12 +533,19 @@
   z-index: 200;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  /* FIX: Use a slightly longer, matching easing for both open and close */
+  transition: opacity 0.40s cubic-bezier(0.25, 1, 0.3, 1);
 }
 #mobile-menu.open {
   pointer-events: all;
   opacity: 1;
 }
+/* Closing state: keep pointer-events active during animation */
+#mobile-menu.closing {
+  pointer-events: all;
+  opacity: 0;
+}
+
 #mobile-menu-backdrop {
   position: absolute;
   inset: 0;
@@ -543,7 +561,8 @@
   width: 80%;
   max-width: 320px;
   transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.25, 1, 0.3, 1);
+  /* FIX: Match the open easing curve and duration exactly */
+  transition: transform 0.40s cubic-bezier(0.25, 1, 0.3, 1);
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -585,10 +604,13 @@
 #mobile-menu.open #mobile-menu-panel {
   transform: translateX(0);
 }
+/* closing state: panel slides back out smoothly */
+#mobile-menu.closing #mobile-menu-panel {
+  transform: translateX(100%);
+}
 
 /* ══════════════════════════════════════════════════
    BRAND GLOW SEARCH BAR — Desktop Nav
-   Clean transparent border + neat glow on focus
    ══════════════════════════════════════════════════ */
 
 .glow-search-wrap {
@@ -607,17 +629,16 @@
 }
 
 .glow-search-wrap:focus-within input {
-  border-color: transparent !important;
-  box-shadow:
-    0 0 0 1px rgba(99, 102, 241, 0.9),
-    0 0 16px 5px rgba(168, 85, 247, 0.35),
-    0 0 32px 8px rgba(79, 70, 229, 0.25);
+  border-color: transparent !important; /* Hide solid border */
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.5),    /* Very thin white definition */
+    0 0 10px 2px rgba(255, 255, 255, 0.4),  /* Whitish core */
+    0 0 18px 4px rgba(70, 70, 175, 0.4);   /* Soft Brand Purple Aura */
   outline: none;
 }
 
 /* ══════════════════════════════════════════════════
    BRAND GLOW SEARCH BAR — Mobile Sidebar
-   Clean transparent border + neat glow on focus
    ══════════════════════════════════════════════════ */
 
 .mobile-glow-search-wrap {
@@ -648,11 +669,11 @@
 }
 
 #mobile-menu-search:focus {
-  border-color: transparent !important;
-  box-shadow:
-    0 0 0 1px rgba(99, 102, 241, 0.9),
-    0 0 16px 5px rgba(168, 85, 247, 0.35),
-    0 0 32px 8px rgba(79, 70, 229, 0.25);
+  border-color: transparent !important; /* Removes the "thick" look */
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.3),    /* Subtle white edge */
+    0 0 10px 3px rgba(255, 255, 255, 0.25), /* Subtle inner whitish light */
+    0 0 22px 6px rgba(70, 70, 175, 0.5);   /* Stronger brand purple aura */
 }
 
 .mobile-nav-link {
@@ -683,24 +704,6 @@
   white-space: nowrap;
   word-wrap: normal;
   font-feature-settings: 'liga';
-}
-
-/* Smart CTA mobile */
-@media (max-width: 639px) {
-  #smart-cta .cta-text-wrap {
-    display: none;
-  }
-  #smart-cta .cta-icon-btn {
-    width: 52px;
-    height: 52px;
-  }
-  #smart-cta .cta-icon-btn .material-symbols-outlined {
-    font-size: 24px;
-  }
-  #smart-cta {
-    bottom: 20px;
-    right: 16px;
-  }
 }
 
 /* Section container mobile padding */
@@ -785,42 +788,83 @@
    ══════════════════════════════════════════════════ */
 .spec-selector-row {
   display: flex;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
   flex-wrap: nowrap;
   padding-bottom: 1px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 .spec-selector-row::-webkit-scrollbar { display: none; }
 
 .spec-sel-btn {
-  flex-shrink: 0;
-  height: 20px;
-  padding: 0 5px;
+  min-width: 0;         
+  flex: 1 1 0%;         
+  height: 28px;
+  padding: 0 12px;       
   background: #fff;
-  border: 1px solid rgba(203,213,225,0.8);
+  border: 1.5px solid rgba(203,213,225,0.8);
   color: #64748b;
-  border-radius: 6px;
+  border-radius: 99px; /* CHANGED: Matches pill shape for visual consistency with height */
   font-family: 'Outfit', sans-serif;
   font-size: 8px;
   font-weight: 700;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.18s ease;
   outline: none;
   white-space: nowrap;
+  position: relative;
 }
 .spec-sel-btn:hover {
   border-color: rgba(79,70,229,0.35);
-  color: #4f46e5;
   background: rgba(79,70,229,0.04);
+  transform: translateY(-0.5px);
 }
 .spec-sel-btn.active {
-  background: rgba(79,70,229,0.10);
+  background: rgba(79,70,229,0.08);
   border-color: #4f46e5;
-  color: #4f46e5;
-  box-shadow: 0 1px 4px rgba(79,70,229,0.12);
+  box-shadow: 0 1px 6px rgba(79,70,229,0.15);
+}
+
+/* Base style for both logos to keep them on the same vertical line */
+.spec-sel-btn .series-icon-img {
+  height: 16px;         /* Control height instead of width for consistency */
+  width: auto;
+  max-width: 95%;      
+  display: block;
+  object-fit: contain;
+  margin: 0 auto;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+/* INCREASING MGWEAVE SEPARATELY: 
+   This targets only the weave logo to make it match the visual weight of Glide */
+.spec-sel-btn[data-value="mgweave"] .series-icon-img {
+  height: 11px;         /* Specific height boost for mgweave */
+  transform: scale(1.1); /* Optional extra fine-tuning nudge */
+}
+
+/* FINE-TUNING MGGLIDE:
+   Ensuring it doesn't look too bulky compared to the boosted weave */
+/*.spec-sel-btn[data-value="mgglide"] .series-icon-img {*/
+/*  height: 12px;         */
+/*}*/
+
+/* New badge overlay on mgglide button */
+.spec-sel-btn .series-new-badge {
+  position: absolute;
+  top: -10px;          
+  right: -8px;
+  width: 28px;         
+  height: 28px;        
+  display: block;
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -1462,13 +1506,9 @@
       <button onclick="closeMobileMenu()" class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full z-10" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);">
         <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings:'wght' 300;">close</span>
       </button>
-      <div class="mb-6">
+      <div class="mb-6 ml-6">
   <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>
 </div>
-      <!--centered logo-->
-<!--      <div class="mb-6 flex justify-center">-->
-<!--  <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>-->
-<!--</div>-->
       <!-- Mobile search with brand glow -->
       <div class="mobile-glow-search-wrap mb-6">
         <div class="mobile-glow-inner">
@@ -1535,21 +1575,15 @@
 </nav>
 
 <!-- ═══════ SMART FIXED CTA BUTTON ═══════ -->
-<div id="smart-cta" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 translate-y-24 opacity-0 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-dark-mode">
-  <div class="sm:hidden ios26-liquid-pill h-[52px] w-[52px] rounded-full flex items-center justify-center shadow-2xl">
+<div id="smart-cta" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 z-50 translate-y-24 opacity-0 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] text-dark-mode">
+  <div class="flex ios26-liquid-pill h-[48px] sm:h-[52px] md:h-[60px] rounded-full px-3.5 sm:px-4 md:px-6 items-center gap-2.5 sm:gap-3 md:gap-4 shadow-2xl transition-transform duration-300">
     <div class="ios26-liquid-pill__ring"></div>
-    <button class="cta-icon-btn w-full h-full flex items-center justify-center text-on-surface" aria-label="Create Your Own Mousepad">
-      <span class="material-symbols-outlined" style="font-size:22px;position:relative;z-index:3;">brush</span>
-    </button>
-  </div>
-  <div class="hidden sm:flex ios26-liquid-pill h-[60px] rounded-full px-4 md:px-6 items-center gap-3 md:gap-4 shadow-2xl transition-transform duration-300">
-    <div class="ios26-liquid-pill__ring"></div>
-    <div class="cta-text-wrap cta-divider pr-3 md:pr-4 border-r transition-colors duration-300">
-      <p class="cta-title font-extrabold text-xs md:text-sm font-headline leading-snug whitespace-nowrap transition-colors duration-300">Create Your Own Mousepad</p>
-      <p class="cta-sub text-[10px] font-bold mt-0.5 hidden sm:block whitespace-nowrap transition-colors duration-300">Upload your design and start creating</p>
+    <div class="cta-text-wrap cta-divider pr-2.5 sm:pr-3 md:pr-4 border-r transition-colors duration-300 flex flex-col justify-center">
+      <p class="cta-title font-extrabold text-[11px] sm:text-[12px] md:text-sm font-headline leading-tight md:leading-snug whitespace-nowrap transition-colors duration-300">Create Your Own Mousepad</p>
+      <p class="cta-sub text-[8.5px] sm:text-[9px] md:text-[10px] font-bold mt-0.5 whitespace-nowrap transition-colors duration-300 block">Upload your design and start creating</p>
     </div>
-    <button class="w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center shadow-md shadow-primary/25 hover:bg-indigo-700 transition-all active:scale-95 flex-shrink-0">
-      <span class="material-symbols-outlined text-[20px]">brush</span>
+    <button class="w-8 h-8 sm:w-[34px] sm:h-[34px] md:w-9 md:h-9 bg-primary text-white rounded-full flex items-center justify-center shadow-md shadow-primary/25 hover:bg-indigo-700 transition-all active:scale-95 flex-shrink-0" aria-label="Create Your Own Mousepad">
+      <span class="material-symbols-outlined text-[16px] sm:text-[18px] md:text-[20px]">brush</span>
     </button>
   </div>
 </div>
@@ -1652,24 +1686,27 @@
     <div id="catalog-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 w-full">
 
       <!-- ══ ITEM 1: Mai – Street Fighter ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(225,29,72,0.18)] hover:border-red-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-red-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(225,29,72,0.18)] hover:border-red-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-red-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
           <img src="product1-desk.jpeg" alt="Mai – Street Fighter Desk" class="absolute inset-0 w-full h-full object-cover object-top z-0 pointer-events-none"/>
           <img src="product1.jpeg" alt="Mai – Street Fighter" class="absolute inset-0 w-full h-full object-cover object-top z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
           <span class="absolute top-3 left-3 bg-[#e24b4a] text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none pointer-events-none">HOT</span>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-[3px] gap-2 pointer-events-none">
-            <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Mai – Street Fighter</h3>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1.5 -mr-2 outline-none pointer-events-auto">
+          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[2px]">
+              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Mai – Street Fighter</h3>
+              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Action / Fighting</span>
+            </div>
+            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
           <!-- Series selector -->
-          <div class="mb-2.5 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
-              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
-              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+          <div class="mb-3 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
+              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+              <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-1-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-1-info">
                 <span class="spec-tooltip-title">Series</span>
@@ -1677,22 +1714,28 @@
               </div>
             </div>
             <div class="spec-selector-row" data-spec-group="series-1">
-              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
-              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
+              <button class="spec-sel-btn active" data-value="mgweave">
+                <img src="mgweave.svg" alt="MGweave" class="series-icon-img"/>
+              </button>
+              <button class="spec-sel-btn" data-value="mgglide">
+                <img src="mgglide.svg" alt="MG Glide" class="series-icon-img"/>
+                <img src="new.svg" alt="New" class="series-new-badge"/>
+              </button>
+              <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
           <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[13px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
@@ -1702,7 +1745,7 @@
               <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
                 <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1711,23 +1754,26 @@
       </div>
 
       <!-- ══ ITEM 2: Shinobi Girl ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(245,158,11,0.18)] hover:border-amber-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-amber-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(245,158,11,0.18)] hover:border-amber-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-amber-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
           <img src="product2-desk.jpeg" alt="Shinobi Girl Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product2.jpeg" alt="Shinobi Girl" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-[3px] gap-2 pointer-events-none">
-            <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Shinobi Girl</h3>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1.5 -mr-2 outline-none pointer-events-auto">
+          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[2px]">
+              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Shinobi Girl</h3>
+              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Anime / Cyberpunk</span>
+            </div>
+            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
           <!-- Series selector -->
-          <div class="mb-2.5 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
-              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
-              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+          <div class="mb-3 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
+              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+              <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-2-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-2-info">
                 <span class="spec-tooltip-title">Series</span>
@@ -1735,22 +1781,28 @@
               </div>
             </div>
             <div class="spec-selector-row" data-spec-group="series-2">
-              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
-              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
+              <button class="spec-sel-btn active" data-value="mgweave">
+                <img src="mgweave.svg" alt="MGweave" class="series-icon-img"/>
+              </button>
+              <button class="spec-sel-btn" data-value="mgglide">
+                <img src="mgglide.svg" alt="MG Glide" class="series-icon-img"/>
+                <img src="new.svg" alt="New" class="series-new-badge"/>
+              </button>
+              <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
           <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[13px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
@@ -1760,7 +1812,7 @@
               <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
                 <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳3900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1769,23 +1821,26 @@
       </div>
 
       <!-- ══ ITEM 3: Neo Tokyo ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(107,114,128,0.18)] hover:border-gray-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-gray-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(107,114,128,0.08)] border border-gray-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(107,114,128,0.18)] hover:border-gray-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-gray-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(107,114,128,0.08)] border border-gray-100/50 dark-zone">
           <img src="product3-desk.jpeg" alt="Neo Tokyo Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product3.jpeg" alt="Neo Tokyo" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-[3px] gap-2 pointer-events-none">
-            <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Neo Tokyo</h3>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1.5 -mr-2 outline-none pointer-events-auto">
+          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[2px]">
+              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Neo Tokyo</h3>
+              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Anime / Cityscape</span>
+            </div>
+            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
           <!-- Series selector -->
-          <div class="mb-2.5 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
-              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
-              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+          <div class="mb-3 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
+              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+              <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-3-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-3-info">
                 <span class="spec-tooltip-title">Series</span>
@@ -1793,22 +1848,28 @@
               </div>
             </div>
             <div class="spec-selector-row" data-spec-group="series-3">
-              <button class="spec-sel-btn active" data-value="mgweave">MGweave</button>
-              <button class="spec-sel-btn" data-value="mgglide">MG Glide</button>
+              <button class="spec-sel-btn active" data-value="mgweave">
+                <img src="mgweave.svg" alt="MGweave" class="series-icon-img"/>
+              </button>
+              <button class="spec-sel-btn" data-value="mgglide">
+                <img src="mgglide.svg" alt="MG Glide" class="series-icon-img"/>
+                <img src="new.svg" alt="New" class="series-new-badge"/>
+              </button>
+              <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
           <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[13px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
@@ -1818,7 +1879,7 @@
               <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
                 <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1827,24 +1888,27 @@
       </div>
 
       <!-- ══ ITEM 4: Royal Ink ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(79,70,229,0.18)] hover:border-indigo-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-4 shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(79,70,229,0.18)] hover:border-indigo-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
           <img src="product4-desk.jpeg" alt="Royal Ink Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product4.jpeg" alt="Royal Ink" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
           <span class="absolute top-3 left-3 bg-primary text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none pointer-events-none">NEW</span>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-[3px] gap-2 pointer-events-none">
-            <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Royal Ink</h3>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1.5 -mr-2 outline-none pointer-events-auto">
+          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[2px]">
+              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Royal Ink</h3>
+              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Dark Fantasy / Graphic</span>
+            </div>
+            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
           <!-- Series selector — MG Glide default -->
-          <div class="mb-2.5 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[3px] text-slate-500 mb-1">
-              <span class="spec-icon material-symbols-outlined" style="font-variation-settings:'wght' 400;">layers</span>
-              <span class="text-[7px] font-extrabold uppercase tracking-[0.1em] opacity-90">SERIES</span>
+          <div class="mb-3 relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start">
+<img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+<span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-4-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-4-info">
                 <span class="spec-tooltip-title">Series</span>
@@ -1852,22 +1916,28 @@
               </div>
             </div>
             <div class="spec-selector-row" data-spec-group="series-4">
-              <button class="spec-sel-btn" data-value="mgweave">MGweave</button>
-              <button class="spec-sel-btn active" data-value="mgglide">MG Glide</button>
+              <button class="spec-sel-btn" data-value="mgweave">
+                <img src="mgweave.svg" alt="MGweave" class="series-icon-img"/>
+              </button>
+              <button class="spec-sel-btn active" data-value="mgglide">
+                <img src="mgglide.svg" alt="MG Glide" class="series-icon-img"/>
+                <img src="new.svg" alt="New" class="series-new-badge"/>
+              </button>
+              <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
           <div class="mt-auto flex flex-col gap-4 pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[13px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-[16px] h-[34px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
@@ -1877,7 +1947,7 @@
               <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
                 <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳5500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
               </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-[16px] h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1887,8 +1957,8 @@
 
     </div>
 
-    <!-- ═══ SUGGEST FOR ME TRIGGER ═══ -->
-    <div class="flex justify-center mt-8 md:mt-10" data-staggered-item>
+    <!-- ═══ SUGGEST FOR ME TRIGGER — pushed down with more margin ═══ -->
+    <div class="flex justify-center mt-14 md:mt-16" data-staggered-item>
       <button class="suggest-trigger-btn" onclick="openSuggestModal()">
         <span class="material-symbols-outlined">auto_awesome</span>
         Suggest for Me
@@ -2122,80 +2192,33 @@
 </footer>
 
 <script>
-  /* ── Mobile Menu ── */
+  /* ── Mobile Menu ──
+     FIX: Add 'closing' BEFORE removing 'open' to prevent a gap-frame
+     where neither class is present, which caused the instant snap.
+     Both overlay (opacity) and panel (transform) now transition smoothly
+     at the same 0.40s duration matching the open animation.
+  */
   function openMobileMenu() {
-    document.getElementById('mobile-menu').classList.add('open');
+    const menu = document.getElementById('mobile-menu');
+    menu.classList.remove('closing');
+    menu.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
-  function closeMobileMenu() {
-    document.getElementById('mobile-menu').classList.remove('open');
-    document.body.style.overflow = '';
-  }
+
+function closeMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  menu.classList.remove('open');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      menu.classList.add('closing');
+    });
+  });
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    menu.classList.remove('closing');
+  }, 450);
+}
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMobileMenu(); closeSuggestModal(); } });
-
-  /* ── Smooth Soft-Lock: Catalog Section (Mobile) ── */
-  (function() {
-    const catalogSection = document.getElementById('catalog-section');
-    if (!catalogSection) return;
-
-    let scrollTimer = null;
-    let lastScrollY = window.scrollY;
-    let lastScrollTime = Date.now();
-    let locked = false;
-    let lastSnapTime = 0;
-
-    function isMobile() { return window.innerWidth < 1024; }
-
-    function snapToSection() {
-      if (!isMobile() || locked) return;
-
-      const now = Date.now();
-      // Throttle: don't snap again within 1.2s of last snap
-      if (now - lastSnapTime < 1200) return;
-
-      const rect = catalogSection.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      // How much of the section is visible (clamped to viewport)
-      const visibleTop = Math.max(0, rect.top);
-      const visibleBottom = Math.min(vh, rect.bottom);
-      const visiblePx = Math.max(0, visibleBottom - visibleTop);
-      const visibleRatio = visiblePx / vh;
-
-      // Velocity: px scrolled per ms since last event
-      const timeDelta = Math.max(1, now - lastScrollTime);
-      const scrollVelocity = Math.abs(window.scrollY - lastScrollY) / timeDelta;
-
-      // Only nudge into view when partially visible (25–80%) AND scroll is slow (settled)
-      if (visibleRatio > 0.25 && visibleRatio < 0.80 && scrollVelocity < 0.9) {
-        locked = true;
-        lastSnapTime = now;
-
-        // Align top of section with a small breathing-room offset (nav height ~76px + 8px)
-        const targetY = window.scrollY + rect.top - 84;
-        window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
-
-        // Release lock after smooth scroll completes (~700ms)
-        setTimeout(() => { locked = false; }, 750);
-      }
-    }
-
-    window.addEventListener('scroll', function() {
-      const now = Date.now();
-      // Track velocity: capture position just before each new debounce window
-      if (!scrollTimer) {
-        lastScrollY = window.scrollY;
-        lastScrollTime = now;
-      }
-
-      clearTimeout(scrollTimer);
-      // Wait for scroll to fully settle (150ms idle) before evaluating snap
-      scrollTimer = setTimeout(() => {
-        scrollTimer = null;
-        snapToSection();
-      }, 150);
-    }, { passive: true });
-  })();
 
   /* ── Smart CTA Behavior ── */
   const smartCta = document.getElementById('smart-cta');
@@ -2451,7 +2474,6 @@
       else showTip(tipEl, triggerEl);
     }
 
-    /* ── Spec info buttons (ⓘ) ── */
     document.querySelectorAll('.spec-info-btn').forEach(btn => {
       const tipId = btn.getAttribute('data-tip-id');
       const tipEl = document.getElementById(tipId);
@@ -2464,7 +2486,6 @@
       });
     });
 
-    /* ── Size info button ── */
     document.querySelectorAll('.size-info-btn').forEach(btn => {
       const tipId = btn.getAttribute('data-tip-id');
       const tipEl = document.getElementById(tipId);
@@ -2477,7 +2498,6 @@
       });
     });
 
-    /* ── Dismiss on outside click ── */
     document.addEventListener('click', () => {
       if (activeTip) {
         activeTip.classList.remove('tip-visible');
@@ -2486,7 +2506,6 @@
       }
     });
 
-    /* ── Auto-dismiss after 3s on mobile ── */
     let autoHideTimer = null;
     document.addEventListener('touchstart', () => {
       if (autoHideTimer) clearTimeout(autoHideTimer);

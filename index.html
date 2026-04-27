@@ -155,6 +155,44 @@
   z-index: 2;
 }
 
+/* ── NAVBAR PILL: allow nav links to be visible (not clipped) on desktop ── */
+#smart-navbar .ios26-liquid-pill {
+  overflow: visible;
+}
+
+/* ── Restore the visual glass effect using a pseudo-clipping wrapper ── */
+#smart-navbar .nav-pill-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+#smart-navbar .nav-pill-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 100% 45% at 50% 0%,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 45%,
+    transparent 70%
+  );
+}
+#smart-navbar .nav-pill-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 70% 30% at 50% 100%,
+    rgba(255, 255, 0.15) 0%,
+    transparent 70%
+  );
+}
+
 .glass-pill {
   position: relative;
   background: rgba(255, 255, 255, 0.01);
@@ -410,6 +448,7 @@
 @media (max-width: 1023px) {
   .mobile-deck-wrapper {
     position: relative;
+    /* Reduced height to perfectly trim whitespace off the bottom of the card content */
     height: 420px; 
     width: 100%;
     max-width: 380px; 
@@ -431,6 +470,13 @@
 
 .hover-lift { transition: transform .25s ease, box-shadow .25s ease; }
 .hover-lift:hover { transform: translateY(-3px); }
+
+/* ── Fix: prevent subpixel font re-rasterization during GPU transform on card hover ── */
+.deck-card-item,
+.deck-card-item * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -532,18 +578,18 @@
   inset: 0;
   z-index: 200;
   pointer-events: none;
-  opacity: 0;
-  /* FIX: Use a slightly longer, matching easing for both open and close */
-  transition: opacity 0.40s cubic-bezier(0.25, 1, 0.3, 1);
+  visibility: hidden;
+  transition: visibility 0s linear 0.40s; /* Hides after sliding is done */
 }
 #mobile-menu.open {
   pointer-events: all;
-  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
 }
-/* Closing state: keep pointer-events active during animation */
 #mobile-menu.closing {
-  pointer-events: all;
-  opacity: 0;
+  pointer-events: none;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
 #mobile-menu-backdrop {
@@ -552,6 +598,14 @@
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.40s cubic-bezier(0.25, 1, 0.3, 1); /* Animate just the shadow fade-in! */
+}
+#mobile-menu.open #mobile-menu-backdrop {
+  opacity: 1;
+}
+#mobile-menu.closing #mobile-menu-backdrop {
+  opacity: 0;
 }
 #mobile-menu-panel {
   position: absolute;
@@ -561,7 +615,6 @@
   width: 80%;
   max-width: 320px;
   transform: translateX(100%);
-  /* FIX: Match the open easing curve and duration exactly */
   transition: transform 0.40s cubic-bezier(0.25, 1, 0.3, 1);
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px) saturate(180%);
@@ -604,7 +657,6 @@
 #mobile-menu.open #mobile-menu-panel {
   transform: translateX(0);
 }
-/* closing state: panel slides back out smoothly */
 #mobile-menu.closing #mobile-menu-panel {
   transform: translateX(100%);
 }
@@ -629,11 +681,11 @@
 }
 
 .glow-search-wrap:focus-within input {
-  border-color: transparent !important; /* Hide solid border */
+  border-color: transparent !important;
   box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.5),    /* Very thin white definition */
-    0 0 10px 2px rgba(255, 255, 255, 0.4),  /* Whitish core */
-    0 0 18px 4px rgba(70, 70, 175, 0.4);   /* Soft Brand Purple Aura */
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 0 10px 2px rgba(255, 255, 255, 0.4),
+    0 0 18px 4px rgba(70, 70, 175, 0.4);
   outline: none;
 }
 
@@ -669,13 +721,48 @@
 }
 
 #mobile-menu-search:focus {
-  border-color: transparent !important; /* Removes the "thick" look */
+  border-color: transparent !important;
   box-shadow: 
-    0 0 0 1px rgba(255, 255, 255, 0.3),    /* Subtle white edge */
-    0 0 10px 3px rgba(255, 255, 255, 0.25), /* Subtle inner whitish light */
-    0 0 22px 6px rgba(70, 70, 175, 0.5);   /* Stronger brand purple aura */
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 0 10px 3px rgba(255, 255, 255, 0.25),
+    0 0 22px 6px rgba(70, 70, 175, 0.5);
 }
 
+/* ══════════════════════════════════════════════════
+   BRAND GLOW SEARCH BAR — Hero Section
+   ══════════════════════════════════════════════════ */
+
+.hero-search-wrap {
+  position: relative;
+  border-radius: 99px;
+  /* 1. Apply the smooth transition directly to the wrapper */
+  transition: box-shadow 0.35s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.35s ease !important;
+  
+  /* 2. THE FIX: Define all 8 layers here, but make the first 3 glow layers transparent */
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0),         /* Transparent glow */
+    0 0 10px 2px rgba(255, 255, 255, 0),      /* Transparent glow */
+    0 0 18px 4px rgba(70, 70, 175, 0),        /* Transparent glow */
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.90),/* Glass layer */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),       /* Glass layer */
+    0 2px 8px rgba(0, 0, 0, 0.06),            /* Glass layer */
+    0 8px 32px rgba(0, 0, 0, 0.08),           /* Glass layer */
+    0 24px 48px rgba(0, 0, 0, 0.04) !important; /* Glass layer */
+}
+
+.hero-search-wrap:focus-within {
+  border-color: transparent !important;
+  /* 3. Fade into the visible glow colors */
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 0 10px 2px rgba(255, 255, 255, 0.4),
+    0 0 18px 4px rgba(70, 70, 175, 0.4),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.90),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 24px 48px rgba(0, 0, 0, 0.04) !important;
+}
 .mobile-nav-link {
   display: flex;
   align-items: center;
@@ -788,25 +875,24 @@
    ══════════════════════════════════════════════════ */
 .spec-selector-row {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: nowrap;
   padding-bottom: 1px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: visible; /* Prevents container from cutting absolutely positioned child elements */
 }
 .spec-selector-row::-webkit-scrollbar { display: none; }
 
 .spec-sel-btn {
   min-width: 0;         
   flex: 1 1 0%;         
-  height: 28px;
-  padding: 0 12px;       
+  height: 29px; 
+  padding: 0 10px;       
   background: #fff;
   border: 1.5px solid rgba(203,213,225,0.8);
   color: #64748b;
-  border-radius: 99px; /* CHANGED: Matches pill shape for visual consistency with height */
+  border-radius: 99px;
   font-family: 'Outfit', sans-serif;
   font-size: 8px;
   font-weight: 700;
@@ -830,11 +916,10 @@
   box-shadow: 0 1px 6px rgba(79,70,229,0.15);
 }
 
-/* Base style for both logos to keep them on the same vertical line */
 .spec-sel-btn .series-icon-img {
-  height: 16px;         /* Control height instead of width for consistency */
+  height: 12.5px;
   width: auto;
-  max-width: 95%;      
+  max-width: 100%;      
   display: block;
   object-fit: contain;
   margin: 0 auto;
@@ -842,26 +927,24 @@
   transition: transform 0.2s ease;
 }
 
-/* INCREASING MGWEAVE SEPARATELY: 
-   This targets only the weave logo to make it match the visual weight of Glide */
+ /*Restored Icon Scaling & Positioning */
 .spec-sel-btn[data-value="mgweave"] .series-icon-img {
-  height: 11px;         /* Specific height boost for mgweave */
-  transform: scale(1.1); /* Optional extra fine-tuning nudge */
+  height: 9.5px;
+  transform: scale(1.2);
 }
 
-/* FINE-TUNING MGGLIDE:
-   Ensuring it doesn't look too bulky compared to the boosted weave */
-/*.spec-sel-btn[data-value="mgglide"] .series-icon-img {*/
-/*  height: 12px;         */
-/*}*/
+.spec-sel-btn[data-value="mgglide"] .series-icon-img {
+  height: 17px;
+  margin-bottom:1px;
+  transform: scale(1);
+}
 
-/* New badge overlay on mgglide button */
 .spec-sel-btn .series-new-badge {
   position: absolute;
-  top: -10px;          
-  right: -8px;
-  width: 28px;         
-  height: 28px;        
+  top: -14px;
+  right: -5px;
+  width: 28px;
+  height: 28px;
   display: block;
   pointer-events: none;
   z-index: 10;
@@ -1479,6 +1562,105 @@
   line-height: 1;
   display: inline-block;
 }
+
+/* ══════════════════════════════════════════════════
+   NAVBAR — Centered nav links, no overlap at any width
+   ══════════════════════════════════════════════════ */
+#smart-navbar .ios26-liquid-pill {
+  min-width: 0;
+}
+
+.nav-links-center {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .nav-links-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex: 0 1 auto;
+    white-space: nowrap;
+    pointer-events: auto;
+    z-index: 3;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nav-links-center { gap: 16px; }
+}
+
+@media (min-width: 1440px) {
+  .nav-links-center { gap: 24px; }
+}
+
+/* Scale font at breakpoints */
+.nav-links-center a {
+  font-size: 11px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+@media (min-width: 1200px) {
+  .nav-links-center a { font-size: 11.5px; }
+}
+@media (min-width: 1280px) {
+  .nav-links-center a { font-size: 12.5px; }
+}
+@media (min-width: 1440px) {
+  .nav-links-center a { font-size: 13.5px; }
+}
+
+/* Flex boundaries enforce true center without overlap */
+.nav-logo-wrap {
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+  justify-content: flex-start;
+  flex: 1 1 0%;
+  min-width: max-content;
+  z-index: 3;
+}
+.nav-actions-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 1 1 0%;
+  min-width: max-content;
+  z-index: 3;
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE OVERRIDES — MG Glide Featured Highlight 
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Expand MG Glide to take more space and make it taller natively */
+  .spec-sel-btn[data-value="mgglide"] {
+    flex: 1.6 1 0%;          
+    height: 40px;            
+  }
+
+  /* Make the logo visually heavier inside its newly grown pill */
+  .spec-sel-btn[data-value="mgglide"] .series-icon-img {
+    transform: scale(1.48); 
+  }
+
+  /* Shift the "NEW" badge relative to the expanded border bounds */
+  .spec-sel-btn[data-value="mgglide"] .series-new-badge {
+    top: -12px;
+    right: -8px;
+    width: 32px;  
+    height: 32px;
+  }
+
+  /* Selectively pushes the entire content block inwards from the image edge strictly on phones */
+  .deck-card-item > .flex-grow {
+    margin-left: 10px;  
+    margin-right: 4px;  
+  }
+}
 </style>
 </head>
 <body class="bg-surface font-body text-on-surface antialiased">
@@ -1507,8 +1689,8 @@
         <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings:'wght' 300;">close</span>
       </button>
       <div class="mb-6 ml-6">
-  <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>
-</div>
+        <img alt="MINIMALIST Gaming" class="h-7 w-auto object-contain" src="logo3.png"/>
+      </div>
       <!-- Mobile search with brand glow -->
       <div class="mobile-glow-search-wrap mb-6">
         <div class="mobile-glow-inner">
@@ -1524,6 +1706,7 @@
         <a class="mobile-nav-link" href="#"><span class="mat-icon">brush</span>Design Your Mousepad</a>
         <a class="mobile-nav-link" href="#"><span class="mat-icon">style</span>Merchandise</a>
         <a class="mobile-nav-link" href="#"><span class="mat-icon">groups</span>Community</a>
+        <a class="mobile-nav-link" href="#"><span class="mat-icon">corporate_fare</span>Corporate</a>
         <a class="mobile-nav-link" href="#"><span class="mat-icon">mail</span>Contact</a>
       </nav>
       <div class="mt-6 pt-5" style="border-top:1px solid rgba(255,255,255,0.1)">
@@ -1536,22 +1719,32 @@
 <!-- ═══════ NAV ═══════ -->
 <nav id="smart-navbar" class="absolute top-0 left-0 right-0 z-50 pt-2 md:pt-3">
   <div class="max-w-[1440px] mx-auto px-3 md:px-8 xl:px-12">
-    <div class="ios26-liquid-pill rounded-full px-4 md:px-6 flex items-center justify-between gap-3 relative" style="height:56px;" class="md:h-[60px]">
+    <div class="ios26-liquid-pill rounded-full px-4 md:px-6 flex items-center justify-between gap-2 relative" style="height:56px;">
       <div class="ios26-liquid-pill__ring"></div>
-      <div class="flex items-center min-w-0 z-10 xl:flex-1">
-        <img alt="MINIMALIST Gaming" class="h-6 md:h-8 w-auto object-contain flex-shrink-0" src="logo.png"/>
-      </div>
-      <div class="hidden lg:flex items-center justify-center gap-3 xl:gap-6 z-10 lg:static xl:absolute xl:left-1/2 xl:top-1/2 xl:-translate-x-1/2 xl:-translate-y-1/2 px-2 xl:px-0">
-        <a class="text-primary font-semibold text-[13px] whitespace-nowrap shrink-0" href="#">Home</a>
-        <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="shop.html">Store</a>
-        <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="#">Design Your Mousepad</a>
-        <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="#">Merchandise</a>
-        <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="#">Community</a>
-        <a class="text-on-surface-variant hover:text-primary transition-colors text-[13px] whitespace-nowrap shrink-0" href="#">Contact</a>
-      </div>
-      <div class="flex items-center justify-end gap-2 md:gap-3 xl:gap-5 flex-shrink-0 z-10 xl:flex-1">
+
+      <!-- Logo -->
+      <!--<div class="nav-logo-wrap">-->
+      <!--  <img alt="MINIMALIST Gaming" class="h-[22px] md:h-[28px] translate-y-[3px] w-auto object-contain flex-shrink-0" src="logo.png"/>-->
+      <!--</div>-->
+<!-- Logo -->
+<div class="nav-logo-wrap">
+  <img alt="MINIMALIST Gaming" class="h-[18px] md:h-[24px] w-auto object-contain flex-shrink-0" src="logo.png"/>
+</div>
+      <!-- Nav links — centered seamlessly within flex flow -->
+      <nav class="nav-links-center">
+        <a class="text-primary font-semibold whitespace-nowrap shrink-0" href="#">Home</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="shop.html">Store</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="#">Design Your Mousepad</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="#">Merchandise</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="#">Community</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="#">Corporate</a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap shrink-0" href="#">Contact</a>
+      </nav>
+
+      <!-- Right actions -->
+      <div class="nav-actions-wrap">
         <!-- Desktop search with brand glow -->
-        <div class="glow-search-wrap hidden lg:block">
+        <div class="glow-search-wrap hidden min-[1200px]:block">
           <div class="glow-search-inner">
             <div class="relative">
               <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg select-none">search</span>
@@ -1559,14 +1752,18 @@
             </div>
           </div>
         </div>
-        <button class="lg:hidden flex items-center justify-center w-9 h-9 flex-shrink-0" onclick="document.getElementById('mobile-menu').classList.add('open'); document.getElementById('mobile-menu-search').focus();">
+
+        <button class="min-[1200px]:hidden flex items-center justify-center w-9 h-9 flex-shrink-0" onclick="document.getElementById('mobile-menu').classList.add('open'); document.getElementById('mobile-menu-search').focus();">
           <span class="material-symbols-outlined text-on-surface-variant text-[22px]">search</span>
         </button>
+
         <button class="relative flex items-center justify-center w-9 h-9 flex-shrink-0">
           <span class="material-symbols-outlined text-on-surface-variant text-[22px]">shopping_cart</span>
         </button>
-        <button class="hidden lg:flex bg-primary text-white px-4 xl:px-5 py-2 rounded-lg font-headline font-bold text-sm shadow-md shadow-primary/25 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap flex-shrink-0 items-center">Sign up</button>
-        <button id="mobile-menu-btn" class="lg:hidden flex items-center justify-center w-9 h-9 flex-shrink-0" onclick="openMobileMenu()" aria-label="Open menu">
+
+        <button class="hidden min-[1100px]:flex bg-primary text-white px-4 xl:px-5 py-2 rounded-lg font-headline font-bold text-sm shadow-md shadow-primary/25 hover:bg-indigo-700 transition-all active:scale-95 whitespace-nowrap flex-shrink-0 items-center">Sign up</button>
+
+        <button id="mobile-menu-btn" class="min-[1200px]:hidden flex items-center justify-center w-9 h-9 flex-shrink-0" onclick="openMobileMenu()" aria-label="Open menu">
           <span class="material-symbols-outlined text-on-surface-variant text-[22px]">menu</span>
         </button>
       </div>
@@ -1622,7 +1819,7 @@
 <!-- ═══════ SEARCH BAR ═══════ -->
 <section class="relative z-20 py-6 md:py-10" data-component-list="StaggeredFadeIn">
   <div class="section-container">
-    <div class="max-w-2xl mx-auto glass-panel rounded-full p-1.5 shadow-xl flex items-center gap-2" data-staggered-item>
+    <div class="max-w-2xl mx-auto hero-search-wrap glass-panel rounded-full p-1.5 shadow-xl flex items-center gap-2" data-staggered-item>
       <div class="w-9 md:w-10 h-9 md:h-10 flex items-center justify-center text-primary flex-shrink-0 ml-1">
         <span class="material-symbols-outlined text-xl">auto_awesome</span>
       </div>
@@ -1686,26 +1883,27 @@
     <div id="catalog-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 w-full">
 
       <!-- ══ ITEM 1: Mai – Street Fighter ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(225,29,72,0.18)] hover:border-red-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-red-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(225,29,72,0.18)] hover:border-red-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[20px] bg-red-50 flex-shrink-0 overflow-hidden mb-[12px] shadow-[inset_0_1px_3px_rgba(225,29,72,0.08)] border border-red-100/50 dark-zone">
           <img src="product1-desk.jpeg" alt="Mai – Street Fighter Desk" class="absolute inset-0 w-full h-full object-cover object-top z-0 pointer-events-none"/>
           <img src="product1.jpeg" alt="Mai – Street Fighter" class="absolute inset-0 w-full h-full object-cover object-top z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
           <span class="absolute top-3 left-3 bg-[#e24b4a] text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none pointer-events-none">HOT</span>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
-            <div class="flex flex-col gap-[2px]">
-              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Mai – Street Fighter</h3>
-              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Action / Fighting</span>
+          <!-- Title row -->
+          <div class="flex justify-between items-start mb-[20px] gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[3px]">
+              <h3 class="font-headline font-bold text-[17px] md:text-[18px] leading-[1.2] text-on-surface tracking-tight transition-colors pointer-events-none">Mai – Street Fighter</h3>
+              <span class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-[0.07em] leading-tight">Action / Fighting</span>
             </div>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
+            <button class="mr-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-0.5 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
           <!-- Series selector -->
-          <div class="mb-3 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
-              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+          <div class="mb-[10px] relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[5px] justify-start ml-1">
+              <span class="w-[11px] h-[11px] bg-slate-500 opacity-90 inline-block drop-shadow-sm" style="mask: url('series.svg') center/contain no-repeat; -webkit-mask: url('series.svg') center/contain no-repeat;"></span>
               <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-1-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-1-info">
@@ -1724,55 +1922,60 @@
               <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
-          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-[10px] pointer-events-none">
+            <!-- Customize / Preview buttons -->
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[38px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[11px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[38px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[11px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[17px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
               </div>
             </div>
-            <div class="flex items-center justify-between pb-1 gap-1.5 mt-auto pointer-events-auto">
-              <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
-                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
-              </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
-                <span class="pointer-events-none">Add to cart</span>
-              </button>
+            <!-- Price + Add to cart -->
+            <div class="flex items-center justify-between pb-1 gap-1.5 mt-1 pointer-events-auto">
+              <div class="flex flex-col gap-[2px] pointer-events-none">
+                <span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span>
+                <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                  <span class="text-[20px] lg:text-[19px] xl:text-[22px] leading-none">৳4500</span><span class="text-[11px] xl:text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
+                </div>
+              </div>
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[13px] xl:text-[13.5px] px-5 sm:px-6 lg:px-4 xl:px-5 flex items-center justify-center gap-1.5 transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+  <span class="material-symbols-outlined text-[16px] xl:text-[18px] pointer-events-none">shopping_cart</span>
+  <span class="pointer-events-none">Add to cart</span>
+</button>
             </div>
           </div>
         </div>
       </div>
 
       <!-- ══ ITEM 2: Shinobi Girl ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(245,158,11,0.18)] hover:border-amber-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-amber-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(245,158,11,0.18)] hover:border-amber-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[20px] bg-amber-50 flex-shrink-0 overflow-hidden mb-[12px] shadow-[inset_0_1px_3px_rgba(245,158,11,0.08)] border border-amber-100/50 dark-zone">
           <img src="product2-desk.jpeg" alt="Shinobi Girl Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product2.jpeg" alt="Shinobi Girl" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
-            <div class="flex flex-col gap-[2px]">
-              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Shinobi Girl</h3>
-              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Anime / Cyberpunk</span>
+          <div class="flex justify-between items-start mb-[20px] gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[3px]">
+              <h3 class="font-headline font-bold text-[17px] md:text-[18px] leading-[1.2] text-on-surface tracking-tight transition-colors pointer-events-none">Shinobi Girl</h3>
+              <span class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-[0.07em] leading-tight">Anime / Cyberpunk</span>
             </div>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
+            <button class="mr-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-0.5 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series selector -->
-          <div class="mb-3 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
-              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+          <div class="mb-[10px] relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[5px] justify-start ml-1">
+              <span class="w-[11px] h-[11px] bg-slate-500 opacity-90 inline-block drop-shadow-sm" style="mask: url('series.svg') center/contain no-repeat; -webkit-mask: url('series.svg') center/contain no-repeat;"></span>
               <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-2-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-2-info">
@@ -1791,28 +1994,31 @@
               <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
-          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-[10px] pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[38px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[11px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[38px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[11px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[17px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
               </div>
             </div>
-            <div class="flex items-center justify-between pb-1 gap-1.5 mt-auto pointer-events-auto">
-              <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
-                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳3900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
-              </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+            <div class="flex items-center justify-between pb-1 gap-1.5 mt-1 pointer-events-auto">
+              <div class="flex flex-col gap-[2px] pointer-events-none">
+                <span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span>
+                <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                  <span class="text-[20px] lg:text-[19px] xl:text-[22px] leading-none">৳3900</span><span class="text-[11px] xl:text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
+                </div>
+              </div>
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[13px] xl:text-[13.5px] px-5 sm:px-6 lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1821,25 +2027,24 @@
       </div>
 
       <!-- ══ ITEM 3: Neo Tokyo ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(107,114,128,0.18)] hover:border-gray-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-gray-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(107,114,128,0.08)] border border-gray-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(107,114,128,0.18)] hover:border-gray-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[20px] bg-gray-50 flex-shrink-0 overflow-hidden mb-[12px] shadow-[inset_0_1px_3px_rgba(107,114,128,0.08)] border border-gray-100/50 dark-zone">
           <img src="product3-desk.jpeg" alt="Neo Tokyo Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product3.jpeg" alt="Neo Tokyo" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
-            <div class="flex flex-col gap-[2px]">
-              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Neo Tokyo</h3>
-              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Anime / Cityscape</span>
+          <div class="flex justify-between items-start mb-[24px] gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[3px]">
+              <h3 class="font-headline font-bold text-[17px] md:text-[18px] leading-[1.2] text-on-surface tracking-tight transition-colors pointer-events-none">Neo Tokyo</h3>
+              <span class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-[0.07em] leading-tight">Anime / Cityscape</span>
             </div>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
+            <button class="mr-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-0.5 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series selector -->
-          <div class="mb-3 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start ml-2">
-              <img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
+          <div class="mb-[10px] relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[5px] justify-start ml-1">
+              <span class="w-[11px] h-[11px] bg-slate-500 opacity-90 inline-block drop-shadow-sm" style="mask: url('series.svg') center/contain no-repeat; -webkit-mask: url('series.svg') center/contain no-repeat;"></span>
               <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-3-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-3-info">
@@ -1858,28 +2063,31 @@
               <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
-          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-[10px] pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[35px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[11px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[35px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[11px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[17px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
               </div>
             </div>
-            <div class="flex items-center justify-between pb-1 gap-1.5 mt-auto pointer-events-auto">
-              <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
-                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳4900</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
-              </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+            <div class="flex items-center justify-between pb-1 gap-1.5 mt-1 pointer-events-auto">
+              <div class="flex flex-col gap-[2px] pointer-events-none">
+                <span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span>
+                <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                  <span class="text-[20px] lg:text-[19px] xl:text-[22px] leading-none">৳4900</span><span class="text-[11px] xl:text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
+                </div>
+              </div>
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[13px] xl:text-[13.5px] px-5 sm:px-6 lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1888,27 +2096,26 @@
       </div>
 
       <!-- ══ ITEM 4: Royal Ink ══ -->
-      <div class="group deck-card-item bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200/50 rounded-[32px] p-3 sm:p-4 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(79,70,229,0.18)] hover:border-indigo-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
-        <div class="relative w-full aspect-[7.5/4] rounded-[24px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-3 shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
+      <div class="group deck-card-item bg-gradient-to-br from-indigo-50 to-indigo-100/50 border border-indigo-200/50 rounded-[32px] p-4 sm:p-5 flex flex-col transition-all duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] will-change-transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(79,70,229,0.18)] hover:border-indigo-300/80 z-10 hover:z-20 bg-white" data-staggered-item>
+        <div class="relative w-full aspect-[7.5/4] rounded-[20px] bg-indigo-50 flex-shrink-0 overflow-hidden mb-[12px] shadow-[inset_0_1px_3px_rgba(79,70,229,0.08)] border border-indigo-100/50 dark-zone">
           <img src="product4-desk.jpeg" alt="Royal Ink Desk" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-0 pointer-events-none"/>
           <img src="product4.jpeg" alt="Royal Ink" class="absolute inset-0 w-full h-full object-cover object-[center_35%] z-10 transition-opacity duration-[400ms] ease-[cubic-bezier(0.15,0,0.2,1)] group-hover:opacity-0 pointer-events-none"/>
           <span class="absolute top-3 left-3 bg-primary text-white font-headline text-[9px] uppercase font-bold tracking-widest px-2.5 py-[3.5px] rounded z-20 shadow-sm leading-none pointer-events-none">NEW</span>
         </div>
         <div class="flex flex-col flex-grow pointer-events-none">
-          <div class="flex justify-between items-start mb-5 gap-2 pointer-events-none w-full">
-            <div class="flex flex-col gap-[2px]">
-              <h3 class="font-headline font-semibold text-[16px] md:text-[17px] leading-[1.2] text-on-surface truncate tracking-tight transition-colors pointer-events-none">Royal Ink</h3>
-              <span class="text-[10.5px] font-medium text-slate-500 uppercase tracking-[0.06em] leading-tight">Dark Fantasy / Graphic</span>
+          <div class="flex justify-between items-start mb-[20px] gap-2 pointer-events-none w-full">
+            <div class="flex flex-col gap-[3px]">
+              <h3 class="font-headline font-bold text-[17px] md:text-[18px] leading-[1.2] text-on-surface tracking-tight transition-colors pointer-events-none">Royal Ink</h3>
+              <span class="text-[10.5px] font-semibold text-slate-400 uppercase tracking-[0.07em] leading-tight">Dark Fantasy / Graphic</span>
             </div>
-            <button class="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-1 outline-none pointer-events-auto">
+            <button class="mr-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 -mt-0.5 outline-none pointer-events-auto">
               <span class="material-symbols-outlined text-[18px]">favorite</span>
             </button>
           </div>
-          <!-- Series selector — MG Glide default -->
-          <div class="mb-3 relative" style="pointer-events:auto;">
-            <div class="flex items-center gap-[5px] text-slate-500 mb-[7px] justify-start">
-<img src="series.svg" class="w-[11px] h-[11px] object-contain opacity-90 inline-block drop-shadow-sm" alt="Series"/>
-<span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
+          <div class="mb-[10px] relative" style="pointer-events:auto;">
+            <div class="flex items-center gap-[5px] text-slate-500 mb-[5px] justify-start ml-1">
+              <span class="w-[11px] h-[11px] bg-slate-500 opacity-90 inline-block drop-shadow-sm" style="mask: url('series.svg') center/contain no-repeat; -webkit-mask: url('series.svg') center/contain no-repeat;"></span>
+              <span class="text-[8.5px] font-extrabold uppercase tracking-[0.1em] opacity-90 text-slate-500 leading-none mt-[0.5px]">SERIES</span>
               <button class="spec-info-btn" data-tip-id="series-tip-4-info"><span class="spec-info-icon">info</span></button>
               <div class="spec-tooltip" id="series-tip-4-info">
                 <span class="spec-tooltip-title">Series</span>
@@ -1926,28 +2133,31 @@
               <div class="spec-sel-btn" style="visibility: hidden; pointer-events: none;"></div>
             </div>
           </div>
-          <div class="mt-auto flex flex-col gap-4 pointer-events-none">
+          <div class="mt-auto flex flex-col gap-[10px] pointer-events-none">
             <div class="flex gap-2 pointer-events-auto">
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[36px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[10.5px] font-bold group/act leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[14px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-primary/40 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-primary transition-all rounded-full h-[38px] flex items-center justify-center gap-1.5 outline-none focus:ring-2 focus:ring-primary/20 text-[11px] font-bold group/act leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[15px] opacity-80 group-hover/act:scale-110 transition-transform pb-[1px] pointer-events-none">auto_fix_high</span>
                   <span class="pointer-events-none">Customize</span>
                 </button>
                 <div class="btn-tooltip">Create your own design or upload artwork</div>
               </div>
               <div class="btn-tooltip-wrap">
-                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[36px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[10.5px] font-bold group/act2 leading-[1] w-full">
-                  <span class="material-symbols-outlined text-[16px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
+                <button class="flex-1 border border-outline-variant/80 hover:border-slate-300 bg-white shadow-sm hover:shadow text-on-surface-variant hover:text-slate-900 transition-all rounded-full h-[38px] flex items-center justify-center gap-[4px] outline-none focus:ring-2 focus:ring-slate-300 text-[11px] font-bold group/act2 leading-[1] w-full">
+                  <span class="material-symbols-outlined text-[17px] opacity-80 group-hover/act2:scale-110 transition-transform -mt-[1px] pointer-events-none">fullscreen</span>
                   <span class="pointer-events-none">Preview</span>
                 </button>
                 <div class="btn-tooltip">See how it looks on a desk setup</div>
               </div>
             </div>
-            <div class="flex items-center justify-between pb-1 gap-1.5 mt-auto pointer-events-auto">
-              <div class="flex flex-col gap-[1px] pointer-events-none"><span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span><div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
-                <span class="text-[18px] lg:text-[17px] xl:text-[21px] leading-none">৳5500</span><span class="text-[10px] xl:text-[11px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
-              </div></div>
-              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[12.5px] xl:text-[13px] px-4 sm:px-5 lg:px-3 xl:px-4 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
+            <div class="flex items-center justify-between pb-1 gap-1.5 mt-1 pointer-events-auto">
+              <div class="flex flex-col gap-[2px] pointer-events-none">
+                <span class="text-[8px] font-bold uppercase tracking-[0.10em] text-on-surface-variant opacity-60 leading-none">Starts at</span>
+                <div class="font-headline tracking-tight text-on-surface font-extrabold flex items-baseline whitespace-nowrap min-w-0">
+                  <span class="text-[20px] lg:text-[19px] xl:text-[22px] leading-none">৳5500</span><span class="text-[11px] xl:text-[12px] leading-none font-bold text-slate-500 opacity-90 pl-0.5">.00</span>
+                </div>
+              </div>
+              <button class="bg-[#4f46e5] hover:bg-[#3f38c6] text-white shadow-[0_6px_12px_-4px_rgba(79,70,229,0.3)] active:scale-[0.96] rounded-full h-[40px] font-headline font-bold text-[13px] xl:text-[13.5px] px-5 sm:px-6 lg:px-4 xl:px-5 flex items-center justify-center transition-all border border-transparent hover:border-white/10 outline-none flex-shrink-0 tracking-wide whitespace-nowrap">
                 <span class="pointer-events-none">Add to cart</span>
               </button>
             </div>
@@ -1957,7 +2167,7 @@
 
     </div>
 
-    <!-- ═══ SUGGEST FOR ME TRIGGER — pushed down with more margin ═══ -->
+    <!-- ═══ SUGGEST FOR ME TRIGGER ═══ -->
     <div class="flex justify-center mt-14 md:mt-16" data-staggered-item>
       <button class="suggest-trigger-btn" onclick="openSuggestModal()">
         <span class="material-symbols-outlined">auto_awesome</span>
@@ -2192,12 +2402,7 @@
 </footer>
 
 <script>
-  /* ── Mobile Menu ──
-     FIX: Add 'closing' BEFORE removing 'open' to prevent a gap-frame
-     where neither class is present, which caused the instant snap.
-     Both overlay (opacity) and panel (transform) now transition smoothly
-     at the same 0.40s duration matching the open animation.
-  */
+  /* ── Mobile Menu ── */
   function openMobileMenu() {
     const menu = document.getElementById('mobile-menu');
     menu.classList.remove('closing');
@@ -2205,19 +2410,20 @@
     document.body.style.overflow = 'hidden';
   }
 
-function closeMobileMenu() {
-  const menu = document.getElementById('mobile-menu');
-  menu.classList.remove('open');
-  requestAnimationFrame(() => {
+  function closeMobileMenu() {
+    const menu = document.getElementById('mobile-menu');
+    menu.classList.remove('open');
     requestAnimationFrame(() => {
-      menu.classList.add('closing');
+      requestAnimationFrame(() => {
+        menu.classList.add('closing');
+      });
     });
-  });
-  document.body.style.overflow = '';
-  setTimeout(() => {
-    menu.classList.remove('closing');
-  }, 450);
-}
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      menu.classList.remove('closing');
+    }, 450);
+  }
+
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMobileMenu(); closeSuggestModal(); } });
 
   /* ── Smart CTA Behavior ── */
@@ -2299,106 +2505,189 @@ function closeMobileMenu() {
     });
   });
 
-  /* ── Vanilla JS Swipe Fanned Stack (Mobile Exclusive) ── */
+  /* ════════════════════════════════════════════════════════════════
+     DECK SWIPE — Fully rewritten for reliable mobile touch handling
+     ════════════════════════════════════════════════════════════════
+     Key fixes vs old code:
+     1. Touch listeners use { passive: false } on the WRAPPER (not rebound per card),
+        so touchmove can preventDefault() to block scroll while swiping horizontally.
+     2. Mouse and touch are handled independently — no dual-binding that causes
+        phantom events on mobile (where both touchstart AND mousedown fire).
+     3. All global move/end listeners are on `document`, not the card element,
+        so the gesture never "jams" if the finger leaves the card boundary.
+     4. A strict horizontal-intent lock: we wait for the first move to detect
+        axis direction. If vertical → hand off to scroll, never start a swipe.
+     5. isDragging is a single source of truth; all branches guard with it.
+     6. Listener binding happens once on the wrapper, not re-bound on every
+        card cycle, eliminating the one-frame gap where no events were registered.
+  ════════════════════════════════════════════════════════════════ */
   document.addEventListener("DOMContentLoaded", () => {
     const catalogGrid = document.getElementById('catalog-cards-grid');
     if (!catalogGrid) return;
+
     let isMobileDeckActive = false;
     let preferDeckView = true;
     let cards = Array.from(catalogGrid.querySelectorAll('.deck-card-item'));
+
     const desktopClasses = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 w-full";
-    const mobileClasses = "mobile-deck-wrapper block";
+    const mobileClasses  = "mobile-deck-wrapper block";
 
-    window.toggleCatalogView = function(view) {
-      if (view === 'deck') {
-        preferDeckView = true;
-        document.getElementById('view-toggle-deck').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-primary bg-primary/10 transition-colors";
-        document.getElementById('view-toggle-grid').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-slate-400 hover:text-slate-600 transition-colors";
-      } else {
-        preferDeckView = false;
-        document.getElementById('view-toggle-grid').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-primary bg-primary/10 transition-colors";
-        document.getElementById('view-toggle-deck').className = "flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md text-slate-400 hover:text-slate-600 transition-colors";
-      }
-      checkWidthSwitchDeck();
-    };
-
+    /* ── Card visual layout ── */
     function updateCardVisuals(animated = true) {
       cards.forEach((card, i) => {
-        if (animated) card.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease';
-        else card.style.transition = 'none';
+        card.style.transition = animated
+          ? 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease'
+          : 'none';
         if (i === 0) {
-          card.style.transform = `scale(1) translateY(0px) rotate(0deg)`;
-          card.style.opacity = 1;
-          card.style.zIndex = cards.length;
+          card.style.transform    = 'scale(1) translateY(0px) rotate(0deg)';
+          card.style.opacity      = '1';
+          card.style.zIndex       = String(cards.length);
           card.style.pointerEvents = 'auto';
         } else {
-          let offsetScale = 1 - (i * 0.04);
-          let offsetY = i * 20;
-          card.style.transform = `scale(${offsetScale}) translateY(${offsetY}px)`;
-          card.style.zIndex = cards.length - i;
-          card.style.opacity = i > 2 ? 0 : (1 - (i * 0.15));
+          const scale   = 1 - i * 0.04;
+          const offsetY = i * 20;
+          card.style.transform    = `scale(${scale}) translateY(${offsetY}px)`;
+          card.style.zIndex       = String(cards.length - i);
+          card.style.opacity      = i > 2 ? '0' : '1';
           card.style.pointerEvents = 'none';
         }
       });
     }
 
-    let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
+    /* ── Rotate top card to back of deck ── */
+    function cycleCard() {
+      const flipped = cards.shift();
+      cards.push(flipped);
+      catalogGrid.appendChild(flipped);
+      updateCardVisuals(false);
+      requestAnimationFrame(() => updateCardVisuals(true));
+    }
 
-    function touchStart(e) {
+    /* ── Drag state ── */
+    let isDragging   = false;
+    let axisLocked   = false;   // true once we've decided horizontal vs vertical
+    let isHorizontal = false;   // direction of the current gesture
+    let startX = 0, startY = 0;
+    let currentDeltaX = 0;
+    const THROW_RATIO = 0.25;   // fraction of screen width needed to dismiss
+
+    /* ── Pointer helpers (unified for touch & mouse) ── */
+    function getXY(e) {
+      const src = e.touches ? e.touches[0] : e;
+      return { x: src.clientX, y: src.clientY };
+    }
+
+    /* ── Start ── */
+    function onDragStart(e) {
       if (!isMobileDeckActive) return;
-      if (e.target.closest('button')) return;
-      if (cards[0] !== e.currentTarget) return;
-      const touch = e.touches ? e.touches[0] : e;
-      startX = touch.clientX; startY = touch.clientY;
-      isDragging = true;
-      cards[0].style.transition = 'none';
+      // Only respond to touches on the top card (cards[0])
+      const topCard = cards[0];
+      if (!topCard) return;
+      // Allow button interactions to pass through
+      if (e.target.closest('button, a, input, select')) return;
+      // Only handle if the event originates inside the top card
+      if (!topCard.contains(e.target)) return;
+
+      const { x, y } = getXY(e);
+      startX        = x;
+      startY        = y;
+      currentDeltaX = 0;
+      isDragging    = true;
+      axisLocked    = false;
+      isHorizontal  = false;
+
+      topCard.style.transition = 'none';
     }
-    function touchMove(e) {
-      if (!isDragging || !isMobileDeckActive) return;
-      const touch = e.touches ? e.touches[0] : e;
-      currentX = touch.clientX - startX;
-      currentY = touch.clientY - startY;
-      if (Math.abs(currentX) > Math.abs(currentY)) e.preventDefault();
-      let rotateDeg = currentX * 0.05;
-      cards[0].style.transform = `translate(${currentX}px, ${currentY * 0.3}px) rotate(${rotateDeg}deg) scale(1.01)`;
+
+    /* ── Move ── */
+    function onDragMove(e) {
+      if (!isDragging) return;
+
+      const { x, y } = getXY(e);
+      const dx = x - startX;
+      const dy = y - startY;
+
+      // On the first meaningful movement, decide axis
+      if (!axisLocked && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        isHorizontal = Math.abs(dx) > Math.abs(dy);
+        axisLocked   = true;
+      }
+
+      // If vertical swipe, abort and let the browser scroll
+      if (axisLocked && !isHorizontal) {
+        isDragging = false;
+        // Snap top card back cleanly
+        const topCard = cards[0];
+        if (topCard) {
+          topCard.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';
+          topCard.style.transform  = 'translate(0px, 0px) rotate(0deg) scale(1)';
+        }
+        return;
+      }
+
+      // Horizontal: prevent page scroll and track drag
+      if (isHorizontal) {
+        e.preventDefault();
+        currentDeltaX = dx;
+        const rotate = dx * 0.05;
+        const topCard = cards[0];
+        if (topCard) {
+          topCard.style.transform = `translate(${dx}px, ${dy * 0.15}px) rotate(${rotate}deg) scale(1.01)`;
+        }
+      }
     }
-    function touchEnd() {
-      if (!isDragging || !isMobileDeckActive) return;
+
+    /* ── End ── */
+    function onDragEnd(e) {
+      if (!isDragging) return;
       isDragging = false;
-      const throwThreshold = window.innerWidth * 0.25;
-      if (Math.abs(currentX) > throwThreshold) {
-        let throwDir = currentX > 0 ? 1 : -1;
-        cards[0].style.transition = 'transform 0.35s cubic-bezier(0.1, 0.7, 0.1, 1), opacity 0.35s';
-        cards[0].style.transform = `translate(${throwDir * 150}%, 10vh) rotate(${throwDir * 20}deg)`;
-        cards[0].style.opacity = 0;
-        setTimeout(() => {
-          const flipped = cards.shift();
-          cards.push(flipped);
-          catalogGrid.appendChild(flipped);
-          bindDeckEvents();
-          updateCardVisuals(false);
-          requestAnimationFrame(() => updateCardVisuals(true));
-        }, 300);
+
+      const topCard = cards[0];
+      if (!topCard) return;
+
+      const threshold = window.innerWidth * THROW_RATIO;
+
+      if (isHorizontal && Math.abs(currentDeltaX) > threshold) {
+        // Throw card off screen
+        const dir = currentDeltaX > 0 ? 1 : -1;
+        topCard.style.transition = 'transform 0.35s cubic-bezier(0.1, 0.7, 0.1, 1), opacity 0.35s ease';
+        topCard.style.transform  = `translate(${dir * 150}%, 10vh) rotate(${dir * 20}deg) scale(1)`;
+        topCard.style.opacity    = '0';
+        setTimeout(cycleCard, 320);
       } else {
-        cards[0].style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        cards[0].style.transform = 'translate(0px, 0px) rotate(0deg)';
+        // Snap back
+        topCard.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        topCard.style.transform  = 'translate(0px, 0px) rotate(0deg) scale(1)';
       }
-      currentX = 0; currentY = 0;
+
+      currentDeltaX = 0;
     }
 
-    function bindDeckEvents() {
-      cards.forEach(c => {
-        c.onmousedown = null; c.ontouchstart = null;
-        c.onmousemove = null; c.ontouchmove = null;
-        c.onmouseup = null; c.ontouchend = null;
-      });
-      if (cards[0]) {
-        cards[0].ontouchstart = touchStart; cards[0].onmousedown = touchStart;
-        cards[0].ontouchmove = touchMove;   cards[0].onmousemove = touchMove;
-        cards[0].ontouchend = touchEnd;     cards[0].onmouseup = touchEnd;
-      }
-    }
+    /* ── Attach listeners once to the wrapper (not per-card) ── */
+    // Touch — passive:false on move so we can preventDefault for horizontal swipes
+    catalogGrid.addEventListener('touchstart',  onDragStart, { passive: true });
+    document.addEventListener(   'touchmove',   onDragMove,  { passive: false });
+    document.addEventListener(   'touchend',    onDragEnd,   { passive: true });
+    document.addEventListener(   'touchcancel', onDragEnd,   { passive: true });
 
+    // Mouse (desktop fallback) — all on document so drag doesn't break on fast moves
+    catalogGrid.addEventListener('mousedown', onDragStart);
+    document.addEventListener(   'mousemove', onDragMove);
+    document.addEventListener(   'mouseup',   onDragEnd);
+
+    /* ── View mode toggle ── */
+    window.toggleCatalogView = function(view) {
+      preferDeckView = (view === 'deck');
+      document.getElementById('view-toggle-deck').className =
+        'flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md transition-colors ' +
+        (preferDeckView ? 'text-primary bg-primary/10' : 'text-slate-400 hover:text-slate-600');
+      document.getElementById('view-toggle-grid').className =
+        'flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-md transition-colors ' +
+        (!preferDeckView ? 'text-primary bg-primary/10' : 'text-slate-400 hover:text-slate-600');
+      checkWidthSwitchDeck();
+    };
+
+    /* ── Responsive layout switching ── */
     function checkWidthSwitchDeck() {
       if (window.innerWidth < 1024 && preferDeckView) {
         if (!isMobileDeckActive) {
@@ -2406,17 +2695,19 @@ function closeMobileMenu() {
           catalogGrid.className = mobileClasses;
           cards.forEach(c => {
             c.style.position = 'absolute';
-            c.style.left = '0'; c.style.right = '0';
-            c.style.height = '100%';
+            c.style.left     = '0';
+            c.style.right    = '0';
+            c.style.height   = '100%';
           });
-          bindDeckEvents();
-          updateCardVisuals();
+          updateCardVisuals(false);
         }
       } else {
         if (isMobileDeckActive) {
           isMobileDeckActive = false;
           catalogGrid.className = desktopClasses;
-          cards.forEach(c => { c.style = ''; c.onmousedown = null; c.ontouchstart = null; c.onmousemove = null; c.ontouchmove = null; c.onmouseup = null; c.ontouchend = null; });
+          cards.forEach(c => {
+            c.style.cssText = ''; // full reset
+          });
         }
       }
     }
@@ -2424,6 +2715,9 @@ function closeMobileMenu() {
     window.addEventListener('resize', checkWidthSwitchDeck, { passive: true });
     checkWidthSwitchDeck();
   });
+  /* ════════════════════════════════════════════════════════════════
+     END DECK SWIPE
+  ════════════════════════════════════════════════════════════════ */
 
   /* ── CTA Adaptive Color Logic ── */
   document.addEventListener("DOMContentLoaded", () => {
